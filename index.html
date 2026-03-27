@@ -4,720 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>工单管理系统</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
-            color: #333;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-        
-        .header p {
-            opacity: 0.9;
-        }
-        
-        .toolbar {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-        
-        .btn-success {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
-        }
-        
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(17, 153, 142, 0.4);
-        }
-        
-        .btn-warning {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-        }
-        
-        .btn-warning:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(240, 147, 251, 0.4);
-        }
-        
-        .btn-info {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-        }
-        
-        .btn-info:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
-        }
-        
-        .filter-group {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        
-        .filter-group select,
-        .filter-group input {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            min-width: 150px;
-        }
-        
-        .table-container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 14px;
-        }
-        
-        td {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            font-size: 14px;
-        }
-        
-        tr:hover {
-            background-color: #f8f9ff;
-        }
-        
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            display: inline-block;
-        }
-        
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-        
-        .status-processing {
-            background: #cce5ff;
-            color: #004085;
-        }
-        
-        .status-completed {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .status-closed {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        
-        .category-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            display: inline-block;
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-        
-        .actions {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #999;
-        }
-        
-        .empty-state svg {
-            width: 100px;
-            height: 100px;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modal.active {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: slideIn 0.3s ease;
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .modal-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 10px 10px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .modal-header h2 {
-            font-size: 20px;
-        }
-        
-        .modal-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            opacity: 0.8;
-            transition: opacity 0.3s;
-        }
-        
-        .modal-close:hover {
-            opacity: 1;
-        }
-        
-        .modal-body {
-            padding: 30px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #555;
-        }
-        
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-        
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        .modal-footer {
-            padding: 20px 30px;
-            border-top: 1px solid #eee;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-        
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-        
-        .toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            border-radius: 6px;
-            color: white;
-            font-weight: 500;
-            z-index: 2000;
-            animation: slideInRight 0.3s ease;
-            display: none;
-        }
-        
-        .toast.show {
-            display: block;
-        }
-        
-        .toast.success {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        }
-        
-        .toast.error {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
-        
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(100px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>工单管理系统</h1>
-            <p>高效管理您的工单，提升工作效率</p>
-        </div>
+        <h1>工单管理系统</h1>
         
-        <div class="toolbar">
-            <button class="btn btn-primary" onclick="openAddModal()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                添加工单
-            </button>
-        </div>
+        <!-- 添加工单按钮 -->
+        <button id="addTicketBtn" class="add-btn">添加工单</button>
         
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>工单编号</th>
-                        <th>工单主题</th>
-                        <th>类别</th>
-                        <th>状态</th>
-                        <th>创建日期</th>
-                        <th>创建人</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody id="workorderTableBody">
-                    <!-- 动态生成 -->
-                </tbody>
-            </table>
-            <div id="emptyState" class="empty-state" style="display: none;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                <p>暂无工单数据</p>
-                <p style="font-size: 12px; margin-top: 10px;">点击"添加工单"按钮创建您的第一个工单</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 添加/编辑工单模态框 -->
-    <div id="workorderModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">添加工单</h2>
-                <button class="modal-close" onclick="closeModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="workorderForm">
-                    <input type="hidden" id="workorderId">
-                    
-                    <div class="form-group">
-                        <label for="subject">工单主题 <span style="color: #f5576c;">*</span></label>
-                        <input type="text" id="subject" name="subject" placeholder="请输入工单主题" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="category">工单类别 <span style="color: #f5576c;">*</span></label>
-                        <select id="category" name="category" required>
-                            <option value="">请选择类别</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="description">问题描述</label>
-                        <textarea id="description" name="description" placeholder="请详细描述问题..."></textarea>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="assignee">执行人</label>
-                            <input type="text" id="assignee" name="assignee" placeholder="请输入执行人">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="creator">创建人</label>
-                            <input type="text" id="creator" name="creator" placeholder="请输入创建人" value="管理员">
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="startTime">计划开始时间</label>
-                            <input type="datetime-local" id="startTime" name="start_time">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="endTime">计划结束时间</label>
-                            <input type="datetime-local" id="endTime" name="end_time">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group" id="statusGroup" style="display: none;">
-                        <label for="status">工单状态</label>
-                        <select id="status" name="status">
-                            <option value="pending">待处理</option>
-                            <option value="processing">处理中</option>
-                            <option value="completed">已完成</option>
-                            <option value="closed">已关闭</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
-                <button type="button" class="btn btn-success" onclick="saveWorkorder()">
-                    <span id="saveBtnText">保存</span>
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Toast提示 -->
-    <div id="toast" class="toast"></div>
-    
-    <script>
-        // 全局数据
-        let workorders = [];
-        let categories = {};
-        let statuses = {};
-        
-        // 页面加载完成后初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            loadCategories();
-            loadStatuses();
-            loadWorkorders();
-        });
-        
-        // 加载工单类别
-        function loadCategories() {
-            fetch('api.php?action=categories')
-                .then(response => response.json())
-                .then(result => {
-                    if (result.code === 200) {
-                        categories = result.data;
-                        // 填充类别选择框
-                        const categorySelect = document.getElementById('category');
-                        
-                        for (const [key, value] of Object.entries(categories)) {
-                            categorySelect.innerHTML += `<option value="${key}">${value}</option>`;
-                        }
-                    }
-                })
-                .catch(error => console.error('加载类别失败:', error));
-        }
-        
-        // 加载工单状态
-        function loadStatuses() {
-            fetch('api.php?action=status')
-                .then(response => response.json())
-                .then(result => {
-                    if (result.code === 200) {
-                        statuses = result.data;
-                    }
-                })
-                .catch(error => console.error('加载状态失败:', error));
-        }
-        
-        // 加载工单列表
-        function loadWorkorders() {
-            fetch('api.php?action=list')
-                .then(response => response.json())
-                .then(result => {
-                    if (result.code === 200) {
-                        workorders = result.data;
-                        renderWorkorders(workorders);
-                    } else {
-                        showToast(result.message, 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('加载工单失败:', error);
-                    showToast('加载工单失败', 'error');
-                });
-        }
-        
-        // 渲染工单列表
-        function renderWorkorders(data) {
-            const tbody = document.getElementById('workorderTableBody');
-            const emptyState = document.getElementById('emptyState');
-            
-            if (data.length === 0) {
-                tbody.innerHTML = '';
-                emptyState.style.display = 'block';
-                return;
-            }
-            
-            emptyState.style.display = 'none';
-            tbody.innerHTML = data.map(item => `
+        <!-- 工单列表 -->
+        <table id="ticketTable" class="ticket-table">
+            <thead>
                 <tr>
-                    <td><strong>${item.workorder_no}</strong></td>
-                    <td>${escapeHtml(item.subject)}</td>
-                    <td><span class="category-badge">${categories[item.category] || item.category}</span></td>
-                    <td><span class="status-badge status-${item.status}">${statuses[item.status] || item.status}</span></td>
-                    <td>${item.created_at}</td>
-                    <td>${escapeHtml(item.creator)}</td>
-                    <td>
-                        <div class="actions">
-                            <button class="btn btn-info btn-sm" onclick="editWorkorder('${item.id}')">编辑</button>
-                        </div>
-                    </td>
+                    <th>工单编号</th>
+                    <th>工单主题</th>
+                    <th>类别</th>
+                    <th>工单状态</th>
+                    <th>创建日期</th>
+                    <th>创建人</th>
+                    <th>操作</th>
                 </tr>
-            `).join('');
-        }
-        
+            </thead>
+            <tbody id="ticketTableBody">
+                <!-- 工单数据将通过JavaScript动态加载 -->
+            </tbody>
+        </table>
+    </div>
 
-        
-        // 打开添加模态框
-        function openAddModal() {
-            document.getElementById('modalTitle').textContent = '添加工单';
-            document.getElementById('workorderForm').reset();
-            document.getElementById('workorderId').value = '';
-            document.getElementById('statusGroup').style.display = 'none';
-            document.getElementById('workorderModal').classList.add('active');
-        }
-        
-        // 打开编辑模态框
-        function editWorkorder(id) {
-            const workorder = workorders.find(item => item.id === id);
-            if (!workorder) {
-                showToast('工单不存在', 'error');
-                return;
-            }
-            
-            document.getElementById('modalTitle').textContent = '编辑工单';
-            document.getElementById('workorderId').value = workorder.id;
-            document.getElementById('subject').value = workorder.subject;
-            document.getElementById('category').value = workorder.category;
-            document.getElementById('description').value = workorder.description || '';
-            document.getElementById('assignee').value = workorder.assignee || '';
-            document.getElementById('creator').value = workorder.creator || '';
-            document.getElementById('startTime').value = workorder.start_time || '';
-            document.getElementById('endTime').value = workorder.end_time || '';
-            document.getElementById('status').value = workorder.status;
-            document.getElementById('statusGroup').style.display = 'block';
-            
-            document.getElementById('workorderModal').classList.add('active');
-        }
-        
-        // 关闭模态框
-        function closeModal() {
-            document.getElementById('workorderModal').classList.remove('active');
-        }
-        
-        // 保存工单
-        function saveWorkorder() {
-            const form = document.getElementById('workorderForm');
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
-            
-            const id = document.getElementById('workorderId').value;
-            const isEdit = !!id;
-            
-            const data = {
-                subject: document.getElementById('subject').value,
-                category: document.getElementById('category').value,
-                description: document.getElementById('description').value,
-                assignee: document.getElementById('assignee').value,
-                creator: document.getElementById('creator').value,
-                start_time: document.getElementById('startTime').value,
-                end_time: document.getElementById('endTime').value
-            };
-            
-            if (isEdit) {
-                data.id = id;
-                data.status = document.getElementById('status').value;
-            }
-            
-            const url = isEdit ? 'api.php?action=update' : 'api.php?action=add';
-            const method = isEdit ? 'PUT' : 'POST';
-            
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.code === 200) {
-                    showToast(isEdit ? '工单更新成功' : '工单添加成功', 'success');
-                    closeModal();
-                    loadWorkorders();
-                } else {
-                    showToast(result.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('保存工单失败:', error);
-                showToast('保存工单失败', 'error');
-            });
-        }
-        
-        // 显示Toast提示
-        function showToast(message, type) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = `toast ${type} show`;
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-        
-        // HTML转义
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
-        // 点击模态框外部关闭
-        document.getElementById('workorderModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
-        });
-    </script>
+    <!-- 添加工单模态框 -->
+    <div id="ticketModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle">添加工单</h2>
+            <form id="ticketForm">
+                <input type="hidden" id="ticketId">
+                
+                <div class="form-group">
+                    <label for="ticketSubject">工单主题:</label>
+                    <input type="text" id="ticketSubject" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ticketCategory">类别:</label>
+                    <select id="ticketCategory" required>
+                        <option value="日常工单">日常工单</option>
+                        <option value="事件工单">事件工单</option>
+                        <option value="问题工单">问题工单</option>
+                        <option value="变更工单">变更工单</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ticketDescription">问题描述:</label>
+                    <textarea id="ticketDescription" rows="4" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="plannedStart">计划开始时间:</label>
+                    <input type="datetime-local" id="plannedStart" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="executor">执行人:</label>
+                    <input type="text" id="executor" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="plannedEnd">计划结束时间:</label>
+                    <input type="datetime-local" id="plannedEnd" required>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="submit-btn">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
