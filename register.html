@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户注册</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .register-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .required::after {
+            content: " *";
+            color: #e74c3c;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        input.error {
+            border-color: #e74c3c;
+            background-color: #fdf2f2;
+        }
+
+        input.success {
+            border-color: #27ae60;
+            background-color: #f2fdf5;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .success-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .success-modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .success-icon {
+            font-size: 60px;
+            color: #27ae60;
+            margin-bottom: 20px;
+        }
+
+        .modal-content h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .modal-content p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .modal-btn {
+            padding: 12px 30px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <h2>用户注册</h2>
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="username" class="required">用户名</label>
+                <input type="text" id="username" name="username" placeholder="3-20字符，字母开头，字母数字下划线">
+                <div class="error-message" id="usernameError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="required">密码</label>
+                <input type="password" id="password" name="password" placeholder="6-20字符，大小写+数字，字母开头">
+                <div class="error-message" id="passwordError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword" class="required">确认密码</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="请再次输入密码">
+                <div class="error-message" id="confirmPasswordError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="phone" class="required">手机号</label>
+                <input type="tel" id="phone" name="phone" placeholder="请输入合法手机号">
+                <div class="error-message" id="phoneError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="idCard" class="required">身份证号</label>
+                <input type="text" id="idCard" name="idCard" placeholder="请输入合法身份证号">
+                <div class="error-message" id="idCardError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">邮箱</label>
+                <input type="email" id="email" name="email" placeholder="请输入邮箱（选填）">
+                <div class="error-message" id="emailError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="inviteCode">邀请码</label>
+                <input type="text" id="inviteCode" name="inviteCode" placeholder="请输入邀请码（选填）">
+                <div class="error-message" id="inviteCodeError"></div>
+            </div>
+
+            <button type="submit" class="submit-btn">立即注册</button>
+        </form>
+    </div>
+
+    <div class="success-modal" id="successModal">
+        <div class="modal-content">
+            <div class="success-icon">✓</div>
+            <h3>注册成功！</h3>
+            <p>您的账号已成功创建</p>
+            <button class="modal-btn" onclick="closeModal()">确定</button>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('registerForm');
+        const inputs = {
+            username: document.getElementById('username'),
+            password: document.getElementById('password'),
+            confirmPassword: document.getElementById('confirmPassword'),
+            phone: document.getElementById('phone'),
+            idCard: document.getElementById('idCard'),
+            email: document.getElementById('email'),
+            inviteCode: document.getElementById('inviteCode')
+        };
+
+        const errors = {
+            username: document.getElementById('usernameError'),
+            password: document.getElementById('passwordError'),
+            confirmPassword: document.getElementById('confirmPasswordError'),
+            phone: document.getElementById('phoneError'),
+            idCard: document.getElementById('idCardError'),
+            email: document.getElementById('emailError'),
+            inviteCode: document.getElementById('inviteCodeError')
+        };
+
+        // 验证规则
+        const validators = {
+            username: (value) => {
+                if (!value) return '用户名不能为空';
+                if (value.length < 3 || value.length > 20) return '用户名长度需在3-20字符之间';
+                if (!/^[a-zA-Z]/.test(value)) return '用户名必须以字母开头';
+                if (!/^[a-zA-Z][a-zA-Z0-9_]*$/.test(value)) return '用户名只能包含字母、数字和下划线';
+                // 必须同时包含字母、数字和下划线
+                if (!/[a-zA-Z]/.test(value)) return '用户名必须包含字母';
+                if (!/\d/.test(value)) return '用户名必须包含数字';
+                if (!/_/.test(value)) return '用户名必须包含下划线';
+                return '';
+            },
+            password: (value) => {
+                if (!value) return '密码不能为空';
+                if (value.length < 6 || value.length > 20) return '密码长度需在6-20字符之间';
+                if (!/^[a-zA-Z]/.test(value)) return '密码必须以字母开头';
+                if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(value)) return '密码必须包含大小写字母和数字';
+                return '';
+            },
+            confirmPassword: (value) => {
+                if (!value) return '请确认密码';
+                if (value !== inputs.password.value) return '两次输入的密码不一致';
+                return '';
+            },
+            phone: (value) => {
+                if (!value) return '手机号不能为空';
+                // 中国大陆手机号验证
+                if (!/^1[3-9]\d{9}$/.test(value)) return '请输入合法的手机号';
+                return '';
+            },
+            idCard: (value) => {
+                if (!value) return '身份证号不能为空';
+                
+                // 基本格式验证（支持15位和18位）
+                const idCardReg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
+                if (!idCardReg.test(value)) return '身份证号格式错误（应为15位或18位数字）';
+                
+                // 将15位转换为18位进行统一验证
+                let idCard18 = value;
+                if (value.length === 15) {
+                    // 15位身份证：在年份前加19，并计算校验码
+                    const prefix = value.substring(0, 6) + '19' + value.substring(6);
+                    const weights = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
+                    const checkCodes = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2'];
+                    let sum = 0;
+                    for (let i = 0; i < 17; i++) {
+                        sum += parseInt(prefix[i]) * weights[i];
+                    }
+                    idCard18 = prefix + checkCodes[sum % 11];
+                }
+                
+                // 地区码验证（前6位）
+                const areaCode = idCard18.substring(0, 6);
+                const areaCodes = [
+                    '11', '12', '13', '14', '15', // 华北
+                    '21', '22', '23', // 东北
+                    '31', '32', '33', '34', '35', '36', '37', // 华东
+                    '41', '42', '43', '44', '45', '46', // 中南
+                    '50', '51', '52', '53', '54', // 西南
+                    '61', '62', '63', '64', '65', // 西北
+                    '71', '81', '82', '91' // 港澳台
+                ];
+                const provinceCode = areaCode.substring(0, 2);
+                if (!areaCodes.includes(provinceCode)) return '身份证号地区码不合法';
+                
+                // 出生日期验证
+                const year = parseInt(idCard18.substring(6, 10));
+                const month = parseInt(idCard18.substring(10, 12));
+                const day = parseInt(idCard18.substring(12, 14));
+                
+                if (year < 1900 || year > new Date().getFullYear()) return '身份证号年份不合法';
+                if (month < 1 || month > 12) return '身份证号月份不合法';
+                
+                // 验证日期是否有效
+                const date = new Date(year, month - 1, day);
+                if (date.getFullYear() !== year || date.getMonth() + 1 !== month || date.getDate() !== day) {
+                    return '身份证号日期不合法';
+                }
+                if (date > new Date()) return '身份证号出生日期不能晚于今天';
+                
+                // 18位身份证校验码验证
+                if (value.length === 18) {
+                    const weights = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
+                    const checkCodes = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2'];
+                    let sum = 0;
+                    for (let i = 0; i < 17; i++) {
+                        sum += parseInt(value[i]) * weights[i];
+                    }
+                    const checkCode = checkCodes[sum % 11];
+                    if (value[17].toUpperCase() !== checkCode) return '身份证号校验码错误';
+                }
+                
+                return '';
+            },
+            email: (value) => {
+                if (!value) return ''; // 邮箱可选
+                const emailReg = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                if (!emailReg.test(value)) return '请输入合法的邮箱地址';
+                return '';
+            },
+            inviteCode: (value) => {
+                // 邀请码可选，如果有值则验证格式
+                if (value && !/^[a-zA-Z0-9]{6,20}$/.test(value)) return '邀请码格式不正确';
+                return '';
+            }
+        };
+
+        // 显示错误
+        function showError(field, message) {
+            inputs[field].classList.add('error');
+            inputs[field].classList.remove('success');
+            errors[field].textContent = message;
+            errors[field].classList.add('show');
+        }
+
+        // 显示成功
+        function showSuccess(field) {
+            inputs[field].classList.remove('error');
+            inputs[field].classList.add('success');
+            errors[field].textContent = '';
+            errors[field].classList.remove('show');
+        }
+
+        // 清除状态
+        function clearStatus(field) {
+            inputs[field].classList.remove('error', 'success');
+            errors[field].textContent = '';
+            errors[field].classList.remove('show');
+        }
+
+        // 验证单个字段
+        function validateField(field) {
+            const value = inputs[field].value.trim();
+            const error = validators[field](value);
+            if (error) {
+                showError(field, error);
+                return false;
+            } else {
+                showSuccess(field);
+                return true;
+            }
+        }
+
+        // 为每个输入框添加实时验证
+        Object.keys(inputs).forEach(field => {
+            inputs[field].addEventListener('blur', () => validateField(field));
+            inputs[field].addEventListener('input', () => {
+                if (inputs[field].classList.contains('error')) {
+                    validateField(field);
+                }
+            });
+        });
+
+        // 密码改变时重新验证确认密码
+        inputs.password.addEventListener('input', () => {
+            if (inputs.confirmPassword.value) {
+                validateField('confirmPassword');
+            }
+        });
+
+        // 表单提交
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            let isValid = true;
+            Object.keys(inputs).forEach(field => {
+                if (!validateField(field)) {
+                    isValid = false;
+                }
+            });
+
+            if (isValid) {
+                document.getElementById('successModal').classList.add('show');
+            }
+        });
+
+        // 关闭成功弹窗
+        function closeModal() {
+            document.getElementById('successModal').classList.remove('show');
+            form.reset();
+            Object.keys(inputs).forEach(field => clearStatus(field));
+        }
+
+        // 点击弹窗外部关闭
+        document.getElementById('successModal').addEventListener('click', (e) => {
+            if (e.target.id === 'successModal') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
