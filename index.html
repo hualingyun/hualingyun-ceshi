@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工单管理系统</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>工单管理系统</h1>
+        
+        <!-- 添加工单按钮 -->
+        <button id="addTicketBtn" class="add-btn">添加工单</button>
+        
+        <!-- 工单列表 -->
+        <table id="ticketTable" class="ticket-table">
+            <thead>
+                <tr>
+                    <th>工单编号</th>
+                    <th>工单主题</th>
+                    <th>类别</th>
+                    <th>工单状态</th>
+                    <th>创建日期</th>
+                    <th>创建人</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="ticketTableBody">
+                <!-- 工单数据将通过JavaScript动态加载 -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 添加工单模态框 -->
+    <div id="ticketModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle">添加工单</h2>
+            <form id="ticketForm">
+                <input type="hidden" id="ticketId">
+                
+                <div class="form-group">
+                    <label for="ticketSubject">工单主题:</label>
+                    <input type="text" id="ticketSubject" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ticketCategory">类别:</label>
+                    <select id="ticketCategory" required>
+                        <option value="日常工单">日常工单</option>
+                        <option value="事件工单">事件工单</option>
+                        <option value="问题工单">问题工单</option>
+                        <option value="变更工单">变更工单</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ticketDescription">问题描述:</label>
+                    <textarea id="ticketDescription" rows="4" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="plannedStart">计划开始时间:</label>
+                    <input type="datetime-local" id="plannedStart" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="executor">执行人:</label>
+                    <input type="text" id="executor" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="plannedEnd">计划结束时间:</label>
+                    <input type="datetime-local" id="plannedEnd" required>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="submit-btn">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
