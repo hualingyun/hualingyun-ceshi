@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工单管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+        }
+        
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-danger {
+            background: #ff4d4f;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #ff7875;
+        }
+        
+        .btn-warning {
+            background: #faad14;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #ffc53d;
+        }
+        
+        .btn-sm {
+            padding: 6px 16px;
+            font-size: 13px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        th {
+            background: #fafafa;
+            font-weight: 600;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        tr:hover {
+            background: #fafafa;
+        }
+        
+        .status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background: #fff7e6;
+            color: #fa8c16;
+        }
+        
+        .status-processing {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+        
+        .status-completed {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            font-size: 18px;
+            color: #333;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .modal-close:hover {
+            color: #333;
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .error-message {
+            color: #ff4d4f;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+        
+        .form-group.has-error input,
+        .form-group.has-error select {
+            border-color: #ff4d4f;
+        }
+        
+        .form-group.has-error .error-message {
+            display: block;
+        }
+        
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .toast.success {
+            background: #52c41a;
+        }
+        
+        .toast.error {
+            background: #ff4d4f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>工单管理系统</h1>
+            <p>高效管理您的工单，提升工作效率</p>
+        </div>
+        
+        <div class="toolbar">
+            <button class="btn btn-primary" onclick="openAddModal()">+ 添加工单</button>
+        </div>
+        
+        <div class="card">
+            <div class="table-container">
+                <table id="workorderTable">
+                    <thead>
+                        <tr>
+                            <th>工单编号</th>
+                            <th>工单主题</th>
+                            <th>类别</th>
+                            <th>状态</th>
+                            <th>创建日期</th>
+                            <th>创建人</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="workorderList">
+                    </tbody>
+                </table>
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    <p>暂无工单数据</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="workorderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">添加工单</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="workorderForm">
+                    <input type="hidden" id="editId">
+                    <div class="form-group" id="workorderIdGroup">
+                        <label>工单编号 <span style="color: #ff4d4f;">*</span></label>
+                        <input type="text" id="workorderId" placeholder="请输入工单编号，如：WO2024001">
+                        <div class="error-message">工单编号格式不正确（6-20字符，以字母开头，必须同时包含大写字母、小写字母和数字）</div>
+                    </div>
+                    <div class="form-group">
+                        <label>工单主题 <span style="color: #ff4d4f;">*</span></label>
+                        <input type="text" id="subject" placeholder="请输入工单主题">
+                        <div class="error-message">请输入工单主题</div>
+                    </div>
+                    <div class="form-group">
+                        <label>类别 <span style="color: #ff4d4f;">*</span></label>
+                        <select id="category">
+                            <option value="">请选择类别</option>
+                            <option value="日常工单">日常工单</option>
+                            <option value="事件工单">事件工单</option>
+                        </select>
+                        <div class="error-message">请选择工单类别</div>
+                    </div>
+                    <div class="form-group">
+                        <label>问题描述</label>
+                        <textarea id="description" placeholder="请输入问题描述"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>计划开始时间 <span style="color: #ff4d4f;">*</span></label>
+                            <input type="datetime-local" id="plannedStartTime">
+                            <div class="error-message">请选择计划开始时间</div>
+                        </div>
+                        <div class="form-group">
+                            <label>计划结束时间 <span style="color: #ff4d4f;">*</span></label>
+                            <input type="datetime-local" id="plannedEndTime">
+                            <div class="error-message">请选择计划结束时间</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>执行人 <span style="color: #ff4d4f;">*</span></label>
+                        <input type="text" id="assignee" placeholder="请输入执行人">
+                        <div class="error-message">请输入执行人</div>
+                    </div>
+                    <div class="form-group" id="statusGroup" style="display: none;">
+                        <label>状态</label>
+                        <select id="status">
+                            <option value="待处理">待处理</option>
+                            <option value="处理中">处理中</option>
+                            <option value="已完成">已完成</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal()" style="background: #f0f0f0; color: #666;">取消</button>
+                <button class="btn btn-primary" onclick="saveWorkorder()">保存</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'api/workorder.php';
+        let workorders = [];
+        
+        function loadWorkorders() {
+            fetch(API_URL)
+                .then(res => res.json())
+                .then(data => {
+                    workorders = data.data || [];
+                    renderWorkorders();
+                })
+                .catch(err => {
+                    workorders = [];
+                    renderWorkorders();
+                });
+        }
+        
+        function renderWorkorders() {
+            const tbody = document.getElementById('workorderList');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (workorders.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            tbody.innerHTML = workorders.map(wo => `
+                <tr>
+                    <td>${wo.workorder_id}</td>
+                    <td>${wo.subject}</td>
+                    <td>${wo.category}</td>
+                    <td><span class="status status-${getStatusClass(wo.status)}">${wo.status}</span></td>
+                    <td>${wo.created_at}</td>
+                    <td>${wo.created_by}</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-warning btn-sm" onclick="editWorkorder('${wo.id}')">编辑</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteWorkorder('${wo.id}')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function getStatusClass(status) {
+            const map = {
+                '待处理': 'pending',
+                '处理中': 'processing',
+                '已完成': 'completed'
+            };
+            return map[status] || 'pending';
+        }
+        
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = '添加工单';
+            document.getElementById('workorderForm').reset();
+            document.getElementById('editId').value = '';
+            document.getElementById('workorderIdGroup').style.display = 'block';
+            document.getElementById('workorderId').disabled = false;
+            document.getElementById('statusGroup').style.display = 'none';
+            clearErrors();
+            document.getElementById('workorderModal').classList.add('active');
+        }
+        
+        function editWorkorder(id) {
+            const wo = workorders.find(w => w.id === id);
+            if (!wo) return;
+            
+            document.getElementById('modalTitle').textContent = '编辑工单';
+            document.getElementById('editId').value = wo.id;
+            document.getElementById('workorderIdGroup').style.display = 'block';
+            document.getElementById('workorderId').value = wo.workorder_id;
+            document.getElementById('workorderId').disabled = true;
+            document.getElementById('subject').value = wo.subject;
+            document.getElementById('category').value = wo.category;
+            document.getElementById('description').value = wo.description || '';
+            document.getElementById('plannedStartTime').value = wo.planned_start_time.replace(' ', 'T');
+            document.getElementById('plannedEndTime').value = wo.planned_end_time.replace(' ', 'T');
+            document.getElementById('assignee').value = wo.assignee;
+            document.getElementById('status').value = wo.status;
+            document.getElementById('statusGroup').style.display = 'block';
+            clearErrors();
+            document.getElementById('workorderModal').classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('workorderModal').classList.remove('active');
+        }
+        
+        function clearErrors() {
+            document.querySelectorAll('.form-group').forEach(g => g.classList.remove('has-error'));
+        }
+        
+        function validateWorkorderId(id) {
+            // 必须以字母开头
+            if (!/^[a-zA-Z]/.test(id)) {
+                return false;
+            }
+            // 6-20字符，必须同时包含大小写字母和数字
+            if (!/^[a-zA-Z0-9]{6,20}$/.test(id)) {
+                return false;
+            }
+            // 检查是否包含至少一个大写字母
+            if (!/[A-Z]/.test(id)) {
+                return false;
+            }
+            // 检查是否包含至少一个小写字母
+            if (!/[a-z]/.test(id)) {
+                return false;
+            }
+            // 检查是否包含至少一个数字
+            if (!/[0-9]/.test(id)) {
+                return false;
+            }
+            return true;
+        }
+        
+        function validateForm() {
+            clearErrors();
+            let valid = true;
+            
+            const editId = document.getElementById('editId').value;
+            const workorderId = document.getElementById('workorderId').value.trim();
+            const subject = document.getElementById('subject').value.trim();
+            const category = document.getElementById('category').value;
+            const plannedStartTime = document.getElementById('plannedStartTime').value;
+            const plannedEndTime = document.getElementById('plannedEndTime').value;
+            const assignee = document.getElementById('assignee').value.trim();
+            
+            if (!editId && !validateWorkorderId(workorderId)) {
+                document.getElementById('workorderIdGroup').classList.add('has-error');
+                valid = false;
+            }
+            
+            if (!subject) {
+                document.getElementById('subject').parentElement.classList.add('has-error');
+                valid = false;
+            }
+            
+            if (!category) {
+                document.getElementById('category').parentElement.classList.add('has-error');
+                valid = false;
+            }
+            
+            if (!plannedStartTime) {
+                document.getElementById('plannedStartTime').parentElement.classList.add('has-error');
+                valid = false;
+            }
+            
+            if (!plannedEndTime) {
+                document.getElementById('plannedEndTime').parentElement.classList.add('has-error');
+                valid = false;
+            }
+            
+            if (!assignee) {
+                document.getElementById('assignee').parentElement.classList.add('has-error');
+                valid = false;
+            }
+            
+            return valid;
+        }
+        
+        function saveWorkorder() {
+            if (!validateForm()) return;
+            
+            const editId = document.getElementById('editId').value;
+            const data = {
+                workorder_id: document.getElementById('workorderId').value.trim(),
+                subject: document.getElementById('subject').value.trim(),
+                category: document.getElementById('category').value,
+                description: document.getElementById('description').value.trim(),
+                planned_start_time: document.getElementById('plannedStartTime').value.replace('T', ' '),
+                planned_end_time: document.getElementById('plannedEndTime').value.replace('T', ' '),
+                assignee: document.getElementById('assignee').value.trim(),
+                created_by: '管理员'
+            };
+            
+            if (editId) {
+                data.id = editId;
+                data.status = document.getElementById('status').value;
+            }
+            
+            const method = editId ? 'PUT' : 'POST';
+            
+            fetch(API_URL, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(result => {
+                if (result.success) {
+                    showToast(editId ? '工单更新成功' : '工单创建成功', 'success');
+                    closeModal();
+                    loadWorkorders();
+                } else {
+                    showToast(result.message, 'error');
+                }
+            })
+            .catch(err => {
+                showToast('保存失败', 'error');
+            });
+        }
+        
+        function deleteWorkorder(id) {
+            if (!confirm('确定要删除该工单吗？')) return;
+            
+            fetch(API_URL, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id })
+            })
+            .then(res => res.json())
+            .then(result => {
+                if (result.success) {
+                    showToast('工单删除成功', 'success');
+                    loadWorkorders();
+                } else {
+                    showToast(result.message, 'error');
+                }
+            })
+            .catch(err => {
+                showToast('删除失败', 'error');
+            });
+        }
+        
+        function showToast(message, type) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        document.getElementById('workorderModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+        
+        loadWorkorders();
+    </script>
+</body>
+</html>
