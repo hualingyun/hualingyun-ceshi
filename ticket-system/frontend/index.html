@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工单管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+        }
+
+        .header {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-processing {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .actions button {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .modal-header h2 {
+            color: #333;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            z-index: 2000;
+            display: none;
+        }
+
+        .toast.success {
+            background-color: #28a745;
+        }
+
+        .toast.error {
+            background-color: #dc3545;
+        }
+
+        .api-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+
+        .api-status.connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .api-status.disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>工单管理系统</h1>
+        
+        <div class="header">
+            <button class="btn btn-primary" onclick="openModal()">+ 添加工单</button>
+            <h2>工单列表</h2>
+        </div>
+
+        <div id="ticketTable">
+            <div class="loading">加载中...</div>
+        </div>
+    </div>
+
+    <!-- 工单表单模态框 -->
+    <div id="ticketModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">添加工单</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            
+            <form id="ticketForm">
+                <input type="hidden" id="ticketId">
+                
+                <div class="form-group">
+                    <label for="ticketNo">工单编号 <span style="color: red;">*</span></label>
+                    <input type="text" id="ticketNo" name="ticket_no" placeholder="请输入工单编号（6-20位，字母开头，必须包含大小写字母和数字）">
+                    <div class="error" id="ticketNoError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="subject">工单主题 <span style="color: red;">*</span></label>
+                    <input type="text" id="subject" name="subject" placeholder="请输入工单主题">
+                    <div class="error" id="subjectError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">工单类别 <span style="color: red;">*</span></label>
+                    <select id="category" name="category">
+                        <option value="">请选择工单类别</option>
+                        <option value="日常工单">日常工单</option>
+                        <option value="事件工单">事件工单</option>
+                    </select>
+                    <div class="error" id="categoryError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">问题描述</label>
+                    <textarea id="description" name="description" placeholder="请输入问题描述"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="plannedStartTime">计划开始时间</label>
+                        <input type="datetime-local" id="plannedStartTime" name="planned_start_time">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="plannedEndTime">计划结束时间</label>
+                        <input type="datetime-local" id="plannedEndTime" name="planned_end_time">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="assignee">执行人</label>
+                    <input type="text" id="assignee" name="assignee" placeholder="请输入执行人">
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast 提示 -->
+    <div id="toast" class="toast"></div>
+
+    <!-- API 状态指示器 -->
+    <div id="apiStatus" class="api-status disconnected">API: 未连接</div>
+
+    <script>
+        // 配置API地址 - 可根据实际情况修改
+        const API_URL = 'http://localhost:8000/api/tickets';
+        
+        // 本地存储键名
+        const STORAGE_KEY = 'tickets_data';
+        
+        let isEditing = false;
+        let useLocalStorage = false;
+
+        // 页面加载时获取工单列表
+        document.addEventListener('DOMContentLoaded', function() {
+            checkApiConnection();
+        });
+
+        // 检查API连接
+        async function checkApiConnection() {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
+                
+                const response = await fetch(API_URL, { 
+                    method: 'GET',
+                    signal: controller.signal 
+                });
+                clearTimeout(timeoutId);
+                
+                if (response.ok) {
+                    useLocalStorage = false;
+                    updateApiStatus(true);
+                    loadTickets();
+                } else {
+                    throw new Error('API not available');
+                }
+            } catch (error) {
+                console.log('API连接失败，使用本地存储模式');
+                useLocalStorage = true;
+                updateApiStatus(false);
+                loadTicketsFromStorage();
+            }
+        }
+
+        // 更新API状态显示
+        function updateApiStatus(connected) {
+            const statusEl = document.getElementById('apiStatus');
+            if (connected) {
+                statusEl.textContent = 'API: 已连接';
+                statusEl.className = 'api-status connected';
+            } else {
+                statusEl.textContent = 'API: 本地模式';
+                statusEl.className = 'api-status disconnected';
+            }
+        }
+
+        // 从本地存储加载
+        function loadTicketsFromStorage() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            const tickets = data ? JSON.parse(data) : [];
+            renderTickets(tickets);
+        }
+
+        // 保存到本地存储
+        function saveToStorage(tickets) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(tickets));
+        }
+
+        // 获取工单列表
+        async function loadTickets() {
+            if (useLocalStorage) {
+                loadTicketsFromStorage();
+                return;
+            }
+
+            try {
+                const response = await fetch(API_URL);
+                const result = await response.json();
+                
+                if (result.code === 200) {
+                    renderTickets(result.data);
+                } else {
+                    showToast('获取工单列表失败', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('网络错误，切换到本地存储模式', 'error');
+                useLocalStorage = true;
+                updateApiStatus(false);
+                loadTicketsFromStorage();
+            }
+        }
+
+        // 渲染工单列表
+        function renderTickets(tickets) {
+            const tableContainer = document.getElementById('ticketTable');
+            
+            if (tickets.length === 0) {
+                tableContainer.innerHTML = `
+                    <div class="empty-state">
+                        <h3>暂无工单数据</h3>
+                        <p>点击"添加工单"按钮创建第一个工单</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>工单编号</th>
+                            <th>工单主题</th>
+                            <th>类别</th>
+                            <th>状态</th>
+                            <th>创建日期</th>
+                            <th>创建人</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            tickets.forEach(ticket => {
+                const statusClass = getStatusClass(ticket.status);
+                html += `
+                    <tr>
+                        <td>${escapeHtml(ticket.ticket_no)}</td>
+                        <td>${escapeHtml(ticket.subject)}</td>
+                        <td>${escapeHtml(ticket.category)}</td>
+                        <td><span class="status ${statusClass}">${escapeHtml(ticket.status)}</span></td>
+                        <td>${formatDate(ticket.created_at)}</td>
+                        <td>${escapeHtml(ticket.creator)}</td>
+                        <td>
+                            <div class="actions">
+                                <button class="btn btn-warning" onclick="editTicket(${ticket.id})">编辑</button>
+                                <button class="btn btn-danger" onclick="deleteTicket(${ticket.id})">删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            tableContainer.innerHTML = html;
+        }
+
+        // 获取状态样式类
+        function getStatusClass(status) {
+            switch (status) {
+                case '待处理': return 'status-pending';
+                case '处理中': return 'status-processing';
+                case '已完成': return 'status-completed';
+                default: return 'status-pending';
+            }
+        }
+
+        // 格式化日期
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleString('zh-CN');
+        }
+
+        // HTML转义
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 打开模态框
+        function openModal() {
+            isEditing = false;
+            document.getElementById('modalTitle').textContent = '添加工单';
+            document.getElementById('ticketForm').reset();
+            document.getElementById('ticketId').value = '';
+            clearErrors();
+            document.getElementById('ticketModal').style.display = 'block';
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('ticketModal').style.display = 'none';
+        }
+
+        // 清除错误信息
+        function clearErrors() {
+            document.getElementById('ticketNoError').textContent = '';
+            document.getElementById('subjectError').textContent = '';
+            document.getElementById('categoryError').textContent = '';
+        }
+
+        // 验证表单
+        function validateForm() {
+            clearErrors();
+            let isValid = true;
+
+            const ticketNo = document.getElementById('ticketNo').value.trim();
+            const subject = document.getElementById('subject').value.trim();
+            const category = document.getElementById('category').value;
+
+            // 验证工单编号
+            if (!ticketNo) {
+                document.getElementById('ticketNoError').textContent = '工单编号不能为空';
+                isValid = false;
+            } else if (ticketNo.length < 6 || ticketNo.length > 20) {
+                document.getElementById('ticketNoError').textContent = '工单编号长度必须为6-20位';
+                isValid = false;
+            } else if (!/^[a-zA-Z]/.test(ticketNo)) {
+                document.getElementById('ticketNoError').textContent = '工单编号必须以字母开头';
+                isValid = false;
+            } else if (!/^[a-zA-Z0-9]+$/.test(ticketNo)) {
+                document.getElementById('ticketNoError').textContent = '工单编号只能包含字母和数字';
+                isValid = false;
+            } else if (!/[a-z]/.test(ticketNo) || !/[A-Z]/.test(ticketNo) || !/[0-9]/.test(ticketNo)) {
+                document.getElementById('ticketNoError').textContent = '工单编号必须同时包含小写字母、大写字母和数字';
+                isValid = false;
+            }
+
+            // 验证工单主题
+            if (!subject) {
+                document.getElementById('subjectError').textContent = '工单主题不能为空';
+                isValid = false;
+            }
+
+            // 验证工单类别
+            if (!category) {
+                document.getElementById('categoryError').textContent = '请选择工单类别';
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        // 表单提交
+        document.getElementById('ticketForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!validateForm()) {
+                return;
+            }
+
+            const formData = {
+                ticket_no: document.getElementById('ticketNo').value.trim(),
+                subject: document.getElementById('subject').value.trim(),
+                category: document.getElementById('category').value,
+                description: document.getElementById('description').value.trim(),
+                planned_start_time: document.getElementById('plannedStartTime').value || null,
+                planned_end_time: document.getElementById('plannedEndTime').value || null,
+                assignee: document.getElementById('assignee').value.trim()
+            };
+
+            if (useLocalStorage) {
+                // 本地存储模式
+                let tickets = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                
+                if (isEditing) {
+                    const ticketId = parseInt(document.getElementById('ticketId').value);
+                    const index = tickets.findIndex(t => t.id === ticketId);
+                    if (index !== -1) {
+                        tickets[index] = { 
+                            ...tickets[index], 
+                            ...formData,
+                            updated_at: new Date().toISOString()
+                        };
+                        saveToStorage(tickets);
+                        showToast('工单更新成功', 'success');
+                    }
+                } else {
+                    const newTicket = {
+                        id: Date.now(),
+                        ...formData,
+                        status: '待处理',
+                        creator: '管理员',
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    };
+                    tickets.push(newTicket);
+                    saveToStorage(tickets);
+                    showToast('工单创建成功', 'success');
+                }
+                
+                closeModal();
+                loadTicketsFromStorage();
+            } else {
+                // API模式
+                try {
+                    let url = API_URL;
+                    let method = 'POST';
+
+                    if (isEditing) {
+                        const ticketId = document.getElementById('ticketId').value;
+                        url = `${API_URL}/${ticketId}`;
+                        method = 'PUT';
+                    }
+
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.code === 200) {
+                        showToast(isEditing ? '工单更新成功' : '工单创建成功', 'success');
+                        closeModal();
+                        loadTickets();
+                    } else {
+                        showToast(result.message || '操作失败', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showToast('网络错误，切换到本地存储模式', 'error');
+                    useLocalStorage = true;
+                    updateApiStatus(false);
+                    // 重试使用本地存储
+                    document.getElementById('ticketForm').dispatchEvent(new Event('submit'));
+                }
+            }
+        });
+
+        // 编辑工单
+        async function editTicket(id) {
+            if (useLocalStorage) {
+                const tickets = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                const ticket = tickets.find(t => t.id === id);
+                
+                if (ticket) {
+                    isEditing = true;
+                    document.getElementById('modalTitle').textContent = '编辑工单';
+                    document.getElementById('ticketId').value = ticket.id;
+                    document.getElementById('ticketNo').value = ticket.ticket_no;
+                    document.getElementById('subject').value = ticket.subject;
+                    document.getElementById('category').value = ticket.category;
+                    document.getElementById('description').value = ticket.description || '';
+                    document.getElementById('plannedStartTime').value = ticket.planned_start_time ? ticket.planned_start_time.substring(0, 16) : '';
+                    document.getElementById('plannedEndTime').value = ticket.planned_end_time ? ticket.planned_end_time.substring(0, 16) : '';
+                    document.getElementById('assignee').value = ticket.assignee || '';
+                    
+                    clearErrors();
+                    document.getElementById('ticketModal').style.display = 'block';
+                }
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`);
+                const result = await response.json();
+
+                if (result.code === 200) {
+                    const ticket = result.data;
+                    isEditing = true;
+                    
+                    document.getElementById('modalTitle').textContent = '编辑工单';
+                    document.getElementById('ticketId').value = ticket.id;
+                    document.getElementById('ticketNo').value = ticket.ticket_no;
+                    document.getElementById('subject').value = ticket.subject;
+                    document.getElementById('category').value = ticket.category;
+                    document.getElementById('description').value = ticket.description || '';
+                    document.getElementById('plannedStartTime').value = ticket.planned_start_time ? ticket.planned_start_time.replace(' ', 'T') : '';
+                    document.getElementById('plannedEndTime').value = ticket.planned_end_time ? ticket.planned_end_time.replace(' ', 'T') : '';
+                    document.getElementById('assignee').value = ticket.assignee || '';
+                    
+                    clearErrors();
+                    document.getElementById('ticketModal').style.display = 'block';
+                } else {
+                    showToast('获取工单信息失败', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('网络错误，切换到本地存储模式', 'error');
+                useLocalStorage = true;
+                updateApiStatus(false);
+                editTicket(id);
+            }
+        }
+
+        // 删除工单
+        async function deleteTicket(id) {
+            if (!confirm('确定要删除这个工单吗？此操作不可恢复。')) {
+                return;
+            }
+
+            if (useLocalStorage) {
+                let tickets = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                tickets = tickets.filter(t => t.id !== id);
+                saveToStorage(tickets);
+                showToast('工单删除成功', 'success');
+                loadTicketsFromStorage();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.code === 200) {
+                    showToast('工单删除成功', 'success');
+                    loadTickets();
+                } else {
+                    showToast(result.message || '删除失败', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('网络错误，切换到本地存储模式', 'error');
+                useLocalStorage = true;
+                updateApiStatus(false);
+                deleteTicket(id);
+            }
+        }
+
+        // 显示提示消息
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.style.display = 'block';
+
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('ticketModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
