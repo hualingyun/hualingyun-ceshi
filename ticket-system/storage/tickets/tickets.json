@@ -1,0 +1,58 @@
+[
+    {
+        "id": 1776353619,
+        "ticket_no": "Test01",
+        "subject": "测试工单",
+        "category": "日常工单",
+        "description": "这是一个测试工单",
+        "status": "待处理",
+        "planned_start_time": null,
+        "planned_end_time": null,
+        "assignee": "张三",
+        "creator": "管理员",
+        "created_at": "2026-04-16 15:33:39",
+        "updated_at": "2026-04-16 15:33:39"
+    },
+    {
+        "id": 1776353619,
+        "ticket_no": "Server02",
+        "subject": "服务器维护",
+        "category": "日常工单",
+        "description": "每月例行服务器维护",
+        "status": "待处理",
+        "planned_start_time": "2026-04-20T09:00",
+        "planned_end_time": "2026-04-20T18:00",
+        "assignee": "李四",
+        "creator": "管理员",
+        "created_at": "2026-04-16 15:33:39",
+        "updated_at": "2026-04-16 15:33:39"
+    },
+    {
+        "id": 1776353619,
+        "ticket_no": "NetWork3",
+        "subject": "网络故障处理",
+        "category": "事件工单",
+        "description": "办公室网络连接中断",
+        "status": "待处理",
+        "planned_start_time": null,
+        "planned_end_time": null,
+        "assignee": "王五",
+        "creator": "管理员",
+        "created_at": "2026-04-16 15:33:39",
+        "updated_at": "2026-04-16 15:33:39"
+    },
+    {
+        "id": 1776353619,
+        "ticket_no": "SysUpg04",
+        "subject": "系统升级",
+        "category": "日常工单",
+        "description": "ERP系统版本升级",
+        "status": "待处理",
+        "planned_start_time": null,
+        "planned_end_time": null,
+        "assignee": "赵六",
+        "creator": "管理员",
+        "created_at": "2026-04-16 15:33:39",
+        "updated_at": "2026-04-16 15:33:39"
+    }
+]
