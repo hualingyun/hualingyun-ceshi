@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>添加工单 - 工单管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 32px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 24px;
+            font-size: 24px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        .required::after {
+            content: ' *';
+            color: #ff4d4f;
+        }
+        input[type="text"],
+        input[type="datetime-local"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        input[type="text"]:focus,
+        input[type="datetime-local"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24,144,255,0.2);
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+        .error {
+            color: #ff4d4f;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+        .error.show {
+            display: block;
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 32px;
+        }
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background-color: #1890ff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #40a9ff;
+        }
+        .btn-primary:disabled {
+            background-color: #bae7ff;
+            cursor: not-allowed;
+        }
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        .btn-secondary:hover {
+            background-color: #d9d9d9;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: #1890ff;
+            text-decoration: none;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+        .back-link:hover {
+            color: #40a9ff;
+        }
+        .back-link::before {
+            content: '←';
+            margin-right: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">返回列表</a>
+        <h1>添加工单</h1>
+        <form id="ticketForm">
+            <div class="form-group">
+                <label for="ticket_no" class="required">工单编号</label>
+                <input type="text" id="ticket_no" name="ticket_no" placeholder="请输入工单编号">
+                <div class="hint">6-20字符，以字母开头，必须同时包含大小写字母和数字</div>
+                <div class="error" id="ticket_no_error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="subject" class="required">工单主题</label>
+                <input type="text" id="subject" name="subject" placeholder="请输入工单主题">
+                <div class="error" id="subject_error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="category" class="required">工单类别</label>
+                <select id="category" name="category">
+                    <option value="">请选择类别</option>
+                    <option value="日常工单">日常工单</option>
+                    <option value="事件工单">事件工单</option>
+                </select>
+                <div class="error" id="category_error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="description">问题描述</label>
+                <textarea id="description" name="description" placeholder="请输入问题描述"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="planned_start_time">计划开始时间</label>
+                <input type="datetime-local" id="planned_start_time" name="planned_start_time">
+            </div>
+
+            <div class="form-group">
+                <label for="planned_end_time">计划结束时间</label>
+                <input type="datetime-local" id="planned_end_time" name="planned_end_time">
+            </div>
+
+            <div class="form-group">
+                <label for="assignee">执行人</label>
+                <input type="text" id="assignee" name="assignee" placeholder="请输入执行人">
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="goBack()">取消</button>
+                <button type="submit" class="btn btn-primary" id="submitBtn">保存</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000/api';
+
+        // 返回列表页
+        function goBack() {
+            window.location.href = '/';
+        }
+
+        // 验证工单编号：必须同时包含大小写字母和数字，以字母开头，6-20字符
+        function validateTicketNo(value) {
+            // 以字母开头，6-20字符，只能包含字母和数字
+            const basePattern = /^[a-zA-Z][a-zA-Z0-9]{5,19}$/;
+            // 必须包含至少一个大写字母
+            const hasUpperCase = /[A-Z]/.test(value);
+            // 必须包含至少一个小写字母
+            const hasLowerCase = /[a-z]/.test(value);
+            // 必须包含至少一个数字
+            const hasNumber = /[0-9]/.test(value);
+
+            return basePattern.test(value) && hasUpperCase && hasLowerCase && hasNumber;
+        }
+
+        // 显示错误信息
+        function showError(fieldId, message) {
+            const errorEl = document.getElementById(fieldId + '_error');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+        }
+
+        // 隐藏错误信息
+        function hideError(fieldId) {
+            const errorEl = document.getElementById(fieldId + '_error');
+            errorEl.classList.remove('show');
+        }
+
+        // 隐藏所有错误
+        function hideAllErrors() {
+            ['ticket_no', 'subject', 'category'].forEach(hideError);
+        }
+
+        // 表单提交
+        document.getElementById('ticketForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            hideAllErrors();
+
+            const formData = {
+                ticket_no: document.getElementById('ticket_no').value.trim(),
+                subject: document.getElementById('subject').value.trim(),
+                category: document.getElementById('category').value,
+                description: document.getElementById('description').value.trim(),
+                planned_start_time: document.getElementById('planned_start_time').value || null,
+                planned_end_time: document.getElementById('planned_end_time').value || null,
+                assignee: document.getElementById('assignee').value.trim(),
+            };
+
+            // 前端验证
+            let hasError = false;
+
+            if (!formData.ticket_no) {
+                showError('ticket_no', '工单编号不能为空');
+                hasError = true;
+            } else if (!validateTicketNo(formData.ticket_no)) {
+                showError('ticket_no', '工单编号格式不正确，需6-20字符、以字母开头、只能包含字母和数字');
+                hasError = true;
+            }
+
+            if (!formData.subject) {
+                showError('subject', '工单主题不能为空');
+                hasError = true;
+            }
+
+            if (!formData.category) {
+                showError('category', '请选择工单类别');
+                hasError = true;
+            }
+
+            if (hasError) return;
+
+            // 提交数据
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '保存中...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/tickets`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('工单创建成功！');
+                    window.location.href = '/';
+                } else {
+                    alert(result.message || '创建失败');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '保存';
+                }
+            } catch (error) {
+                console.error('创建工单失败:', error);
+                alert('创建失败，请重试');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '保存';
+            }
+        });
+
+        // 实时验证工单编号
+        document.getElementById('ticket_no').addEventListener('blur', function() {
+            const value = this.value.trim();
+            if (value && !validateTicketNo(value)) {
+                showError('ticket_no', '工单编号格式不正确，需6-20字符、以字母开头、只能包含字母和数字');
+            } else {
+                hideError('ticket_no');
+            }
+        });
+    </script>
+</body>
+</html>
