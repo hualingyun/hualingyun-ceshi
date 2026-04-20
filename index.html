@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户注册</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .register-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .register-header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .register-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group label .required {
+            color: #e74c3c;
+            margin-left: 2px;
+        }
+
+        .form-group label .optional {
+            color: #95a5a6;
+            font-weight: normal;
+            margin-left: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group input.error {
+            border-color: #e74c3c;
+        }
+
+        .form-group input.success {
+            border-color: #2ecc71;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .password-strength {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .strength-bar {
+            height: 4px;
+            flex: 1;
+            background: #e1e8ed;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .strength-bar.weak {
+            background: #e74c3c;
+        }
+
+        .strength-bar.medium {
+            background: #f39c12;
+        }
+
+        .strength-bar.strong {
+            background: #2ecc71;
+        }
+
+        .strength-text {
+            font-size: 12px;
+            margin-top: 5px;
+            color: #666;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 500;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            background: #2ecc71;
+        }
+
+        .toast.error {
+            background: #e74c3c;
+        }
+
+        @media (max-width: 480px) {
+            .register-container {
+                padding: 25px;
+            }
+
+            .register-header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-header">
+            <h1>用户注册</h1>
+            <p>创建您的账户，开启精彩旅程</p>
+        </div>
+
+        <form id="registerForm" novalidate>
+            <div class="form-group">
+                <label>用户名<span class="required">*</span></label>
+                <input type="text" id="username" placeholder="请输入用户名">
+                <div class="error-message" id="usernameError"></div>
+            </div>
+
+            <div class="form-group">
+                <label>密码<span class="required">*</span></label>
+                <input type="password" id="password" placeholder="请输入密码">
+                <div class="password-strength">
+                    <div class="strength-bar" id="bar1"></div>
+                    <div class="strength-bar" id="bar2"></div>
+                    <div class="strength-bar" id="bar3"></div>
+                </div>
+                <div class="strength-text" id="strengthText"></div>
+                <div class="error-message" id="passwordError"></div>
+            </div>
+
+            <div class="form-group">
+                <label>确认密码<span class="required">*</span></label>
+                <input type="password" id="confirmPassword" placeholder="请再次输入密码">
+                <div class="error-message" id="confirmPasswordError"></div>
+            </div>
+
+            <div class="form-group">
+                <label>手机号<span class="required">*</span></label>
+                <input type="tel" id="phone" placeholder="请输入手机号">
+                <div class="error-message" id="phoneError"></div>
+            </div>
+
+            <div class="form-group">
+                <label>邮箱<span class="optional">(可选)</span></label>
+                <input type="email" id="email" placeholder="请输入邮箱">
+                <div class="error-message" id="emailError"></div>
+            </div>
+
+            <div class="form-group">
+                <label>身份证号<span class="required">*</span></label>
+                <input type="text" id="idCard" placeholder="请输入身份证号">
+                <div class="error-message" id="idCardError"></div>
+            </div>
+
+            <div class="form-group">
+                <label>邀请码<span class="optional">(可选)</span></label>
+                <input type="text" id="inviteCode" placeholder="请输入邀请码">
+                <div class="error-message" id="inviteCodeError"></div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">立即注册</button>
+        </form>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const form = document.getElementById('registerForm');
+        const fields = {
+            username: document.getElementById('username'),
+            password: document.getElementById('password'),
+            confirmPassword: document.getElementById('confirmPassword'),
+            phone: document.getElementById('phone'),
+            email: document.getElementById('email'),
+            idCard: document.getElementById('idCard'),
+            inviteCode: document.getElementById('inviteCode')
+        };
+
+        const patterns = {
+            username: /^[a-zA-Z][a-zA-Z0-9_]{2,19}$/,
+            password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z].{5,19}$/,
+            phone: /^1[3-9]\d{9}$/,
+            email: /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$/,
+            idCard: /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/
+        };
+
+        const messages = {
+            username: '用户名需3-20字符，字母数字下划线组合，以字母开头',
+            password: '密码需6-20字符，大小写+数字组合，以字母开头',
+            confirmPassword: '两次密码输入不一致',
+            phone: '请输入有效的手机号',
+            email: '请输入有效的邮箱地址',
+            idCard: '请输入有效的身份证号'
+        };
+
+        function showError(fieldId, message) {
+            const field = fields[fieldId];
+            const errorEl = document.getElementById(fieldId + 'Error');
+            field.classList.add('error');
+            field.classList.remove('success');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+        }
+
+        function showSuccess(fieldId) {
+            const field = fields[fieldId];
+            const errorEl = document.getElementById(fieldId + 'Error');
+            field.classList.remove('error');
+            field.classList.add('success');
+            errorEl.classList.remove('show');
+        }
+
+        function clearValidation(fieldId) {
+            const field = fields[fieldId];
+            const errorEl = document.getElementById(fieldId + 'Error');
+            field.classList.remove('error', 'success');
+            errorEl.classList.remove('show');
+        }
+
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+            if (/\d/.test(password) && /[!@#$%^&*]/.test(password)) strength++;
+            return strength;
+        }
+
+        function updatePasswordStrength() {
+            const password = fields.password.value;
+            const strength = checkPasswordStrength(password);
+            const bars = ['bar1', 'bar2', 'bar3'];
+            const strengthText = document.getElementById('strengthText');
+
+            bars.forEach((bar, index) => {
+                const el = document.getElementById(bar);
+                el.classList.remove('weak', 'medium', 'strong');
+                if (index < strength) {
+                    if (strength === 1) el.classList.add('weak');
+                    else if (strength === 2) el.classList.add('medium');
+                    else if (strength === 3) el.classList.add('strong');
+                }
+            });
+
+            if (password.length === 0) {
+                strengthText.textContent = '';
+            } else if (strength === 1) {
+                strengthText.textContent = '密码强度：弱';
+                strengthText.style.color = '#e74c3c';
+            } else if (strength === 2) {
+                strengthText.textContent = '密码强度：中';
+                strengthText.style.color = '#f39c12';
+            } else if (strength === 3) {
+                strengthText.textContent = '密码强度：强';
+                strengthText.style.color = '#2ecc71';
+            }
+        }
+
+        function validateIdCard(idCard) {
+            if (!patterns.idCard.test(idCard)) return false;
+
+            const weights = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
+            const checkCodes = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2'];
+            let sum = 0;
+
+            for (let i = 0; i < 17; i++) {
+                sum += parseInt(idCard[i]) * weights[i];
+            }
+
+            const checkCode = checkCodes[sum % 11];
+            return idCard[17].toUpperCase() === checkCode;
+        }
+
+        function validateField(fieldId) {
+            const value = fields[fieldId].value.trim();
+
+            if (fieldId === 'confirmPassword') {
+                if (value === '') {
+                    showError(fieldId, '请确认密码');
+                    return false;
+                } else if (value !== fields.password.value) {
+                    showError(fieldId, messages.confirmPassword);
+                    return false;
+                } else {
+                    showSuccess(fieldId);
+                    return true;
+                }
+            }
+
+            if (fieldId === 'email' || fieldId === 'inviteCode') {
+                if (value === '') {
+                    clearValidation(fieldId);
+                    return true;
+                }
+            }
+
+            if (fieldId !== 'email' && fieldId !== 'inviteCode' && value === '') {
+                showError(fieldId, '此字段为必填项');
+                return false;
+            }
+
+            if (fieldId === 'idCard') {
+                if (!validateIdCard(value)) {
+                    showError(fieldId, messages.idCard);
+                    return false;
+                } else {
+                    showSuccess(fieldId);
+                    return true;
+                }
+            }
+
+            if (patterns[fieldId] && !patterns[fieldId].test(value)) {
+                showError(fieldId, messages[fieldId]);
+                return false;
+            }
+
+            showSuccess(fieldId);
+            return true;
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        Object.keys(fields).forEach(fieldId => {
+            fields[fieldId].addEventListener('blur', () => validateField(fieldId));
+            fields[fieldId].addEventListener('input', () => {
+                if (fields[fieldId].classList.contains('error')) {
+                    validateField(fieldId);
+                }
+                if (fieldId === 'password') {
+                    updatePasswordStrength();
+                    if (fields.confirmPassword.value) {
+                        validateField('confirmPassword');
+                    }
+                }
+            });
+        });
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            let isValid = true;
+            Object.keys(fields).forEach(fieldId => {
+                if (!validateField(fieldId)) {
+                    isValid = false;
+                }
+            });
+
+            if (isValid) {
+                showToast('注册成功！', 'success');
+                form.reset();
+                Object.keys(fields).forEach(fieldId => clearValidation(fieldId));
+                document.getElementById('strengthText').textContent = '';
+            } else {
+                showToast('请检查表单中的错误', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
