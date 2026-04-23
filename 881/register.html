@@ -204,7 +204,7 @@
                     <span class="validation-icon valid">✓</span>
                     <span class="validation-icon invalid">✗</span>
                 </div>
-                <div class="hint">3-20个字符，字母开头，可包含字母、数字、下划线</div>
+                <div class="hint">3-20个字符，字母开头，必须包含字母、数字、下划线三者</div>
                 <div class="error-message" id="usernameError"></div>
                 <div class="success-message" id="usernameSuccess">用户名格式正确</div>
             </div>
@@ -297,14 +297,20 @@
 
         // 验证规则
         const validators = {
-            // 用户名：3-20字符，字母开头，字母数字下划线组合
+            // 用户名：3-20字符，字母开头，必须包含字母、数字、下划线三者
             username: (value) => {
                 if (!value || value.trim() === '') {
                     return { valid: false, message: '用户名不能为空' };
                 }
                 const regex = /^[a-zA-Z][a-zA-Z0-9_]{2,19}$/;
                 if (!regex.test(value)) {
-                    return { valid: false, message: '用户名格式错误：需3-20个字符，以字母开头，可包含字母、数字、下划线' };
+                    return { valid: false, message: '用户名格式错误：需3-20个字符，以字母开头，必须包含字母、数字、下划线三者' };
+                }
+                if (!/[0-9]/.test(value)) {
+                    return { valid: false, message: '用户名必须包含数字' };
+                }
+                if (!/_/.test(value)) {
+                    return { valid: false, message: '用户名必须包含下划线' };
                 }
                 return { valid: true, message: '' };
             },
