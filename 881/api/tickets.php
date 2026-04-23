@@ -27,8 +27,25 @@ function saveTickets($tickets) {
 }
 
 function validateTicketId($ticketId) {
-    $pattern = '/^[a-zA-Z][a-zA-Z0-9]{5,19}$/';
-    return preg_match($pattern, $ticketId);
+    if (strlen($ticketId) < 6 || strlen($ticketId) > 20) {
+        return false;
+    }
+    if (!preg_match('/^[a-zA-Z]/', $ticketId)) {
+        return false;
+    }
+    if (!preg_match('/[A-Z]/', $ticketId)) {
+        return false;
+    }
+    if (!preg_match('/[a-z]/', $ticketId)) {
+        return false;
+    }
+    if (!preg_match('/[0-9]/', $ticketId)) {
+        return false;
+    }
+    if (!preg_match('/^[a-zA-Z][a-zA-Z0-9]*$/', $ticketId)) {
+        return false;
+    }
+    return true;
 }
 
 function validateRequiredFields($data) {
@@ -91,7 +108,7 @@ try {
             }
             
             if (!validateTicketId($input['ticket_id'])) {
-                echo json_encode(['success' => false, 'message' => '工单编号格式错误：需以字母开头，6-20位字母数字组合']);
+                echo json_encode(['success' => false, 'message' => '工单编号格式错误：需以字母开头，6-20位，必须同时包含大写字母、小写字母和数字']);
                 http_response_code(400);
                 exit();
             }
@@ -142,7 +159,7 @@ try {
             }
             
             if (!validateTicketId($input['ticket_id'])) {
-                echo json_encode(['success' => false, 'message' => '工单编号格式错误：需以字母开头，6-20位字母数字组合']);
+                echo json_encode(['success' => false, 'message' => '工单编号格式错误：需以字母开头，6-20位，必须同时包含大写字母、小写字母和数字']);
                 http_response_code(400);
                 exit();
             }

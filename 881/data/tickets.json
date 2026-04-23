@@ -1,1 +1,16 @@
-[]
+[
+    {
+        "id": "69ea09f065bf5",
+        "ticket_id": "a12345",
+        "subject": "12",
+        "category": "日常工单",
+        "description": "123",
+        "plan_start_time": "2026-04-23T19:44",
+        "plan_end_time": "2026-04-24T19:44",
+        "assignee": "12",
+        "status": "待处理",
+        "creator": "当前用户",
+        "created_at": "2026-04-23 12:00:48",
+        "updated_at": "2026-04-23 12:00:48"
+    }
+]

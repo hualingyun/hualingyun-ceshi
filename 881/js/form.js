@@ -4,14 +4,21 @@ let isEditMode = false;
 document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     ticketId = urlParams.get('id');
+    const statusFieldGroup = document.getElementById('statusFieldGroup');
     
     if (ticketId) {
         isEditMode = true;
         document.getElementById('pageTitle').textContent = '编辑工单';
+        if (statusFieldGroup) {
+            statusFieldGroup.style.display = 'block';
+        }
         await loadTicket(ticketId);
     } else {
         isEditMode = false;
         document.getElementById('pageTitle').textContent = '添加工单';
+        if (statusFieldGroup) {
+            statusFieldGroup.style.display = 'none';
+        }
         setDefaultTimes();
     }
     
@@ -91,7 +98,7 @@ function validateField(fieldId) {
             return false;
         }
         if (!validateTicketId(value)) {
-            showFieldError(fieldId, '工单编号格式错误：需以字母开头，6-20位字母数字组合');
+            showFieldError(fieldId, '工单编号格式错误：需以字母开头，6-20位，必须同时包含大写字母、小写字母和数字');
             return false;
         }
         clearFieldError(fieldId);

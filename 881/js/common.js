@@ -81,8 +81,25 @@ function formatDateForInput(dateStr) {
 }
 
 function validateTicketId(ticketId) {
-    const pattern = /^[a-zA-Z][a-zA-Z0-9]{5,19}$/;
-    return pattern.test(ticketId);
+    if (ticketId.length < 6 || ticketId.length > 20) {
+        return false;
+    }
+    if (!/^[a-zA-Z]/.test(ticketId)) {
+        return false;
+    }
+    if (!/[A-Z]/.test(ticketId)) {
+        return false;
+    }
+    if (!/[a-z]/.test(ticketId)) {
+        return false;
+    }
+    if (!/[0-9]/.test(ticketId)) {
+        return false;
+    }
+    if (!/^[a-zA-Z][a-zA-Z0-9]*$/.test(ticketId)) {
+        return false;
+    }
+    return true;
 }
 
 function showFieldError(fieldId, message) {
