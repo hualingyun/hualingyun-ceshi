@@ -66,7 +66,7 @@ function add_article() {
         json_response(false, '文章内容不能为空');
     }
 
-    $current_user = get_current_user();
+    $current_user = app_get_current_user();
     $articles = get_articles();
 
     $new_article = [

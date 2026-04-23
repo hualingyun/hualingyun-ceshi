@@ -109,10 +109,8 @@ if (!function_exists('is_logged_in')) {
     }
 }
 
-if (!function_exists('get_current_user')) {
-    function get_current_user() {
-        return $_SESSION['user'] ?? null;
-    }
+function app_get_current_user() {
+    return $_SESSION['user'] ?? null;
 }
 
 if (!function_exists('require_login')) {

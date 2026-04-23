@@ -1,7 +1,7 @@
 <?php
 require_once 'config.php';
 require_login();
-$current_user = get_current_user();
+$current_user = app_get_current_user();
 ?>
 <!DOCTYPE html>
 <html lang="zh-CN">
