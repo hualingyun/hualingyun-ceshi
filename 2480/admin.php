@@ -78,6 +78,33 @@ $current_user = app_get_current_user();
         .sidebar .menu-item .icon {
             font-size: 16px;
         }
+        .sidebar .menu-parent {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .sidebar .menu-parent .menu-text {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sidebar .menu-parent .arrow {
+            transition: transform 0.3s;
+        }
+        .sidebar .menu-parent.expanded .arrow {
+            transform: rotate(90deg);
+        }
+        .sidebar .submenu {
+            display: none;
+            background: #1f2d3d;
+        }
+        .sidebar .submenu.show {
+            display: block;
+        }
+        .sidebar .submenu .menu-item {
+            padding-left: 50px;
+            font-size: 13px;
+        }
         .main {
             flex: 1;
             padding: 20px;
@@ -309,9 +336,20 @@ $current_user = app_get_current_user();
                 <span class="icon">📝</span>
                 <span>文章管理</span>
             </div>
-            <div class="menu-item" data-page="categories">
-                <span class="icon">📂</span>
-                <span>分类管理</span>
+            <div class="menu-item menu-parent" data-parent="categories">
+                <span class="menu-text">
+                    <span class="icon">📂</span>
+                    <span>文章分类管理</span>
+                </span>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="submenu" id="categoriesSubmenu">
+                <div class="menu-item" data-page="categories">
+                    <span>分类列表</span>
+                </div>
+                <div class="menu-item" data-action="addCategory">
+                    <span>分类添加</span>
+                </div>
             </div>
         </div>
 
@@ -494,10 +532,27 @@ $current_user = app_get_current_user();
 
         document.querySelectorAll('.menu-item').forEach(item => {
             item.addEventListener('click', function() {
+                const parent = this.dataset.parent;
+                const page = this.dataset.page;
+                const action = this.dataset.action;
+
+                if (parent) {
+                    this.classList.toggle('expanded');
+                    const submenu = document.getElementById(parent + 'Submenu');
+                    if (submenu) {
+                        submenu.classList.toggle('show');
+                    }
+                    return;
+                }
+
                 document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
                 this.classList.add('active');
 
-                const page = this.dataset.page;
+                if (action === 'addCategory') {
+                    openAddCategoryModal();
+                    return;
+                }
+
                 document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
                 
                 if (page === 'welcome') {
