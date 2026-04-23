@@ -222,18 +222,25 @@ $current_user = app_get_current_user();
             font-size: 14px;
         }
         .form-group input,
-        .form-group textarea {
+        .form-group textarea,
+        .form-group select {
             width: 100%;
             padding: 8px 12px;
             border: 1px solid #dcdfe6;
             border-radius: 4px;
             font-size: 14px;
             transition: border-color 0.3s;
+            box-sizing: border-box;
         }
         .form-group input:focus,
-        .form-group textarea:focus {
+        .form-group textarea:focus,
+        .form-group select:focus {
             outline: none;
             border-color: #409eff;
+        }
+        .form-group select {
+            cursor: pointer;
+            background: white;
         }
         .form-group textarea {
             resize: vertical;
@@ -347,6 +354,7 @@ $current_user = app_get_current_user();
                             <tr>
                                 <th>ID</th>
                                 <th>标题</th>
+                                <th>分类</th>
                                 <th>作者</th>
                                 <th>创建时间</th>
                                 <th>更新时间</th>
@@ -658,7 +666,7 @@ $current_user = app_get_current_user();
         function renderArticlesTable(articles) {
             const tbody = document.getElementById('articlesTableBody');
             if (articles.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="empty">暂无数据</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="empty">暂无数据</td></tr>';
                 return;
             }
 
@@ -666,6 +674,7 @@ $current_user = app_get_current_user();
                 <tr>
                     <td>${article.id}</td>
                     <td>${article.title}</td>
+                    <td>${article.category_name}</td>
                     <td>${article.author_name}</td>
                     <td>${article.created_at}</td>
                     <td>${article.updated_at}</td>
