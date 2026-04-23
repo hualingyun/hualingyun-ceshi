@@ -17,14 +17,16 @@ if (!file_exists(ARTICLES_FILE)) {
     file_put_contents(ARTICLES_FILE, json_encode([]));
 }
 
-function json_response($success, $message, $data = null) {
-    header('Content-Type: application/json');
-    echo json_encode([
-        'success' => $success,
-        'message' => $message,
-        'data' => $data
-    ]);
-    exit;
+if (!function_exists('json_response')) {
+    function json_response($success, $message, $data = null) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => $success,
+            'message' => $message,
+            'data' => $data
+        ]);
+        exit;
+    }
 }
 
 function get_users() {
@@ -45,17 +47,22 @@ function save_articles($articles) {
     file_put_contents(ARTICLES_FILE, json_encode($articles, JSON_PRETTY_PRINT));
 }
 
-function validate_username($username) {
-    if (empty($username)) {
-        return '用户名不能为空';
+if (!function_exists('validate_username')) {
+    function validate_username($username) {
+        if (empty($username)) {
+            return '用户名不能为空';
+        }
+        if (strlen($username) < 3 || strlen($username) > 20) {
+            return '用户名长度必须为3-20个字符';
+        }
+        if (!preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $username)) {
+            return '用户名必须以字母开头，只能包含字母、数字和下划线';
+        }
+        if (!preg_match('/[a-zA-Z]/', $username) || !preg_match('/[0-9]/', $username) || !preg_match('/_/', $username)) {
+            return '用户名必须包含字母、数字和下划线三者组合';
+        }
+        return true;
     }
-    if (strlen($username) < 3 || strlen($username) > 20) {
-        return '用户名长度必须为3-20个字符';
-    }
-    if (!preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $username)) {
-        return '用户名必须以字母开头，只能包含字母、数字和下划线';
-    }
-    return true;
 }
 
 function validate_password($password) {
