@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工单管理系统</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>工单管理系统</h1>
+        </header>
+        
+        <main>
+            <div class="toolbar">
+                <button class="btn btn-primary" id="addTicketBtn">
+                    + 添加工单
+                </button>
+                <div class="filters">
+                    <input type="text" id="searchInput" placeholder="搜索工单编号、主题、执行人、创建人...">
+                    <select id="categoryFilter">
+                        <option value="">全部类别</option>
+                        <option value="日常工单">日常工单</option>
+                        <option value="事件工单">事件工单</option>
+                    </select>
+                    <select id="statusFilter">
+                        <option value="">全部状态</option>
+                        <option value="待处理">待处理</option>
+                        <option value="处理中">处理中</option>
+                        <option value="已完成">已完成</option>
+                    </select>
+                    <button class="btn btn-secondary" id="searchBtn">搜索</button>
+                    <button class="btn btn-secondary" id="resetBtn">重置</button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>工单编号</th>
+                            <th>工单主题</th>
+                            <th>类别</th>
+                            <th>状态</th>
+                            <th>创建日期</th>
+                            <th>创建人</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticketTableBody">
+                        <tr>
+                            <td colspan="7" class="loading">加载中...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="pagination" id="pagination" style="display: none;"></div>
+        </main>
+    </div>
+    
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <h3>确认删除</h3>
+            <p>确定要删除这个工单吗？此操作不可恢复。</p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancelDelete">取消</button>
+                <button class="btn btn-danger" id="confirmDelete">确认删除</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script src="js/common.js"></script>
+    <script src="js/index.js"></script>
+</body>
+</html>

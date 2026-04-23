@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工单管理系统 - 添加工单</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>工单管理系统</h1>
+        </header>
+        
+        <main>
+            <div class="page-header">
+                <h2 id="pageTitle">添加工单</h2>
+                <a href="index.html" class="btn btn-secondary">返回列表</a>
+            </div>
+            
+            <div class="form-container">
+                <form id="ticketForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ticket_id">工单编号 <span class="required">*</span></label>
+                            <input type="text" id="ticket_id" name="ticket_id" placeholder="请输入工单编号">
+                            <div class="help-text">以字母开头，6-20位字母数字组合</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">工单主题 <span class="required">*</span></label>
+                            <input type="text" id="subject" name="subject" placeholder="请输入工单主题">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="category">工单类别 <span class="required">*</span></label>
+                            <select id="category" name="category">
+                                <option value="">请选择类别</option>
+                                <option value="日常工单">日常工单</option>
+                                <option value="事件工单">事件工单</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="status">工单状态</label>
+                            <select id="status" name="status">
+                                <option value="待处理">待处理</option>
+                                <option value="处理中">处理中</option>
+                                <option value="已完成">已完成</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">问题描述 <span class="required">*</span></label>
+                        <textarea id="description" name="description" placeholder="请详细描述问题..."></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="plan_start_time">计划开始时间 <span class="required">*</span></label>
+                            <input type="datetime-local" id="plan_start_time" name="plan_start_time">
+                        </div>
+                        <div class="form-group">
+                            <label for="plan_end_time">计划结束时间 <span class="required">*</span></label>
+                            <input type="datetime-local" id="plan_end_time" name="plan_end_time">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="assignee">执行人 <span class="required">*</span></label>
+                            <input type="text" id="assignee" name="assignee" placeholder="请输入执行人">
+                        </div>
+                        <div class="form-group">
+                            <label for="creator">创建人</label>
+                            <input type="text" id="creator" name="creator" placeholder="请输入创建人" value="当前用户">
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">保存</button>
+                        <button type="button" class="btn btn-secondary" onclick="window.location.href='index.html'">取消</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script src="js/common.js"></script>
+    <script src="js/form.js"></script>
+</body>
+</html>
