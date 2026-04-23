@@ -119,7 +119,7 @@
         <form id="registerForm">
             <div class="form-group">
                 <label for="username">用户名</label>
-                <input type="text" id="username" name="username" placeholder="3-20字符，字母开头，字母数字下划线">
+                <input type="text" id="username" name="username" placeholder="3-20字符，字母开头，必须包含字母、数字、下划线">
                 <div class="error" id="usernameError">用户名格式错误</div>
             </div>
             <div class="form-group">
@@ -159,6 +159,7 @@
             if (!username) return '用户名不能为空';
             if (username.length < 3 || username.length > 20) return '用户名长度必须为3-20个字符';
             if (!/^[a-zA-Z][a-zA-Z0-9_]*$/.test(username)) return '用户名必须以字母开头，只能包含字母、数字和下划线';
+            if (!/[a-zA-Z]/.test(username) || !/[0-9]/.test(username) || !/_/.test(username)) return '用户名必须包含字母、数字和下划线三者组合';
             return null;
         }
 

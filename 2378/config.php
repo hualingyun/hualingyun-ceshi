@@ -29,22 +29,30 @@ if (!function_exists('json_response')) {
     }
 }
 
-function get_users() {
-    $content = file_get_contents(USERS_FILE);
-    return json_decode($content, true) ?: [];
+if (!function_exists('get_users')) {
+    function get_users() {
+        $content = file_get_contents(USERS_FILE);
+        return json_decode($content, true) ?: [];
+    }
 }
 
-function save_users($users) {
-    file_put_contents(USERS_FILE, json_encode($users, JSON_PRETTY_PRINT));
+if (!function_exists('save_users')) {
+    function save_users($users) {
+        file_put_contents(USERS_FILE, json_encode($users, JSON_PRETTY_PRINT));
+    }
 }
 
-function get_articles() {
-    $content = file_get_contents(ARTICLES_FILE);
-    return json_decode($content, true) ?: [];
+if (!function_exists('get_articles')) {
+    function get_articles() {
+        $content = file_get_contents(ARTICLES_FILE);
+        return json_decode($content, true) ?: [];
+    }
 }
 
-function save_articles($articles) {
-    file_put_contents(ARTICLES_FILE, json_encode($articles, JSON_PRETTY_PRINT));
+if (!function_exists('save_articles')) {
+    function save_articles($articles) {
+        file_put_contents(ARTICLES_FILE, json_encode($articles, JSON_PRETTY_PRINT));
+    }
 }
 
 if (!function_exists('validate_username')) {
@@ -65,43 +73,53 @@ if (!function_exists('validate_username')) {
     }
 }
 
-function validate_password($password) {
-    if (empty($password)) {
-        return '密码不能为空';
+if (!function_exists('validate_password')) {
+    function validate_password($password) {
+        if (empty($password)) {
+            return '密码不能为空';
+        }
+        if (strlen($password) < 6 || strlen($password) > 20) {
+            return '密码长度必须为6-20个字符';
+        }
+        if (!preg_match('/^[a-zA-Z]/', $password)) {
+            return '密码必须以字母开头';
+        }
+        if (!preg_match('/[a-z]/', $password) || !preg_match('/[A-Z]/', $password) || !preg_match('/[0-9]/', $password)) {
+            return '密码必须包含大小写字母和数字';
+        }
+        return true;
     }
-    if (strlen($password) < 6 || strlen($password) > 20) {
-        return '密码长度必须为6-20个字符';
-    }
-    if (!preg_match('/^[a-zA-Z]/', $password)) {
-        return '密码必须以字母开头';
-    }
-    if (!preg_match('/[a-z]/', $password) || !preg_match('/[A-Z]/', $password) || !preg_match('/[0-9]/', $password)) {
-        return '密码必须包含大小写字母和数字';
-    }
-    return true;
 }
 
-function validate_phone($phone) {
-    if (empty($phone)) {
-        return '手机号不能为空';
+if (!function_exists('validate_phone')) {
+    function validate_phone($phone) {
+        if (empty($phone)) {
+            return '手机号不能为空';
+        }
+        if (!preg_match('/^1[3-9]\d{9}$/', $phone)) {
+            return '请输入有效的手机号';
+        }
+        return true;
     }
-    if (!preg_match('/^1[3-9]\d{9}$/', $phone)) {
-        return '请输入有效的手机号';
+}
+
+if (!function_exists('is_logged_in')) {
+    function is_logged_in() {
+        return isset($_SESSION['user']);
     }
-    return true;
 }
 
-function is_logged_in() {
-    return isset($_SESSION['user']);
+if (!function_exists('get_current_user')) {
+    function get_current_user() {
+        return $_SESSION['user'] ?? null;
+    }
 }
 
-function get_current_user() {
-    return $_SESSION['user'] ?? null;
-}
-
-function require_login() {
-    if (!is_logged_in()) {
-        header('Location: login.html');
-        exit;
+if (!function_exists('require_login')) {
+    function require_login() {
+        if (!is_logged_in()) {
+            header('Location: login.html');
+            exit;
+        }
     }
 }
