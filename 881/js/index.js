@@ -1,6 +1,7 @@
 let currentPage = 1;
 const pageSize = 10;
 let allTickets = [];
+let filteredTickets = [];
 let deleteTicketId = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -11,6 +12,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 function initEventListeners() {
     document.getElementById('addTicketBtn').addEventListener('click', () => {
         window.location.href = 'form.html';
+    });
+    
+    document.getElementById('searchBtn').addEventListener('click', searchTickets);
+    document.getElementById('resetBtn').addEventListener('click', resetFilters);
+    
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            searchTickets();
+        }
     });
     
     document.getElementById('cancelDelete').addEventListener('click', () => {
@@ -39,6 +49,7 @@ async function loadTickets() {
     
     if (result.success) {
         allTickets = result.data;
+        filteredTickets = [...allTickets];
         renderTable();
     } else {
         showToast(result.message || '加载工单失败', 'error');
@@ -46,17 +57,49 @@ async function loadTickets() {
     }
 }
 
+function searchTickets() {
+    const searchKeyword = document.getElementById('searchInput').value.trim();
+    
+    if (searchKeyword === '') {
+        filteredTickets = [...allTickets];
+    } else {
+        const keywordLower = searchKeyword.toLowerCase();
+        filteredTickets = allTickets.filter(ticket => {
+            return ticket.subject.toLowerCase().includes(keywordLower);
+        });
+    }
+    
+    currentPage = 1;
+    renderTable();
+    
+    if (searchKeyword !== '' && filteredTickets.length === 0) {
+        showToast('没有找到匹配的工单', 'warning');
+    }
+}
+
+function resetFilters() {
+    document.getElementById('searchInput').value = '';
+    filteredTickets = [...allTickets];
+    currentPage = 1;
+    renderTable();
+}
+
 function renderTable() {
     const tbody = document.getElementById('ticketTableBody');
     const pagination = document.getElementById('pagination');
     
-    if (allTickets.length === 0) {
+    if (filteredTickets.length === 0) {
+        const hasSearchKeyword = document.getElementById('searchInput').value.trim() !== '';
         tbody.innerHTML = `
             <tr>
                 <td colspan="7" class="empty-data">
                     <div style="text-align: center; padding: 40px;">
-                        <p style="color: #999; margin-bottom: 10px;">暂无工单数据</p>
-                        <p style="color: #bbb; font-size: 12px;">点击左上角"添加工单"按钮创建新工单</p>
+                        <p style="color: #999; margin-bottom: 10px;">
+                            ${hasSearchKeyword ? '没有找到匹配的工单' : '暂无工单数据'}
+                        </p>
+                        <p style="color: #bbb; font-size: 12px;">
+                            ${hasSearchKeyword ? '请尝试其他关键词' : '点击左上角"添加工单"按钮创建新工单'}
+                        </p>
                     </div>
                 </td>
             </tr>
@@ -65,10 +108,10 @@ function renderTable() {
         return;
     }
     
-    const totalPages = Math.ceil(allTickets.length / pageSize);
+    const totalPages = Math.ceil(filteredTickets.length / pageSize);
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;
-    const pageTickets = allTickets.slice(startIndex, endIndex);
+    const pageTickets = filteredTickets.slice(startIndex, endIndex);
     
     let html = '';
     pageTickets.forEach(ticket => {
@@ -115,7 +158,7 @@ function renderEmptyTable() {
 
 function renderPagination(totalPages) {
     const pagination = document.getElementById('pagination');
-    let html = `<span class="pagination-info">共 ${allTickets.length} 条，第 ${currentPage}/${totalPages} 页</span>`;
+    let html = `<span class="pagination-info">共 ${filteredTickets.length} 条，第 ${currentPage}/${totalPages} 页</span>`;
     
     html += `<button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>上一页</button>`;
     
@@ -146,7 +189,7 @@ function renderPagination(totalPages) {
 }
 
 function goToPage(page) {
-    const totalPages = Math.ceil(allTickets.length / pageSize);
+    const totalPages = Math.ceil(filteredTickets.length / pageSize);
     if (page >= 1 && page <= totalPages) {
         currentPage = page;
         renderTable();
@@ -168,8 +211,9 @@ async function deleteTicket(id) {
     if (result.success) {
         showToast('工单删除成功', 'success');
         allTickets = allTickets.filter(t => t.id !== id);
+        filteredTickets = filteredTickets.filter(t => t.id !== id);
         
-        const totalPages = Math.ceil(allTickets.length / pageSize);
+        const totalPages = Math.ceil(filteredTickets.length / pageSize);
         if (currentPage > totalPages && totalPages > 0) {
             currentPage = totalPages;
         }
