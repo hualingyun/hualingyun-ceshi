@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贪吃蛇游戏</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="score-info">
+            <div class="score-item">
+                <span class="label">当前得分：</span>
+                <span id="current-score" class="value">0</span>
+            </div>
+            <div class="score-item">
+                <span class="label">历史最高分：</span>
+                <span id="high-score" class="value">0</span>
+            </div>
+        </div>
+        <div class="game-info" id="game-info">
+            按方向键开始游戏 | 空格键暂停
+        </div>
+        <canvas id="game-canvas" width="400" height="400"></canvas>
+        <div class="game-over" id="game-over">
+            <h2>游戏结束</h2>
+            <p>得分：<span id="final-score">0</span></p>
+            <p>按任意方向键重新开始</p>
+        </div>
+        <div class="game-paused" id="game-paused">
+            <h2>游戏暂停</h2>
+            <p>按空格键继续游戏</p>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
