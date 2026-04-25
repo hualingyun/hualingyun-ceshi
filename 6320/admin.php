@@ -356,9 +356,23 @@ function has_button_permission_js($module, $action, $button_permissions) {
                 <span class="icon">🏠</span>
                 <span>欢迎页</span>
             </div>
-            <div class="menu-item" data-page="users">
-                <span class="icon">👥</span>
-                <span>用户管理</span>
+            <div class="menu-item menu-parent" data-parent="usermanagement">
+                <span class="menu-text">
+                    <span class="icon">👥</span>
+                    <span>用户管理</span>
+                </span>
+                <span class="arrow">▶</span>
+            </div>
+            <div class="submenu" id="usermanagementSubmenu">
+                <div class="menu-item" data-page="users">
+                    <span>用户列表</span>
+                </div>
+                <div class="menu-item" data-page="roles">
+                    <span>角色管理</span>
+                </div>
+                <div class="menu-item" data-page="permissions">
+                    <span>权限配置</span>
+                </div>
             </div>
             <div class="menu-item" data-page="articles">
                 <span class="icon">📝</span>
@@ -378,14 +392,6 @@ function has_button_permission_js($module, $action, $button_permissions) {
                 <div class="menu-item" data-action="addCategory">
                     <span>分类添加</span>
                 </div>
-            </div>
-            <div class="menu-item" data-page="roles">
-                <span class="icon">👤</span>
-                <span>角色管理</span>
-            </div>
-            <div class="menu-item" data-page="permissions">
-                <span class="icon">🔒</span>
-                <span>权限配置</span>
             </div>
         </div>
 
