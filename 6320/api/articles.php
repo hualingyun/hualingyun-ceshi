@@ -7,6 +7,11 @@ if (!is_logged_in()) {
     json_response(false, '请先登录');
 }
 
+$current_user = app_get_current_user();
+if (!has_menu_permission($current_user, 'articles')) {
+    json_response(false, '您没有权限访问此模块');
+}
+
 $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
@@ -16,10 +21,19 @@ switch ($method) {
     case 'POST':
         $action = $_POST['action'] ?? '';
         if ($action === 'add') {
+            if (!has_button_permission($current_user, 'articles', 'add')) {
+                json_response(false, '您没有权限添加文章');
+            }
             add_article();
         } elseif ($action === 'edit') {
+            if (!has_button_permission($current_user, 'articles', 'edit')) {
+                json_response(false, '您没有权限编辑文章');
+            }
             edit_article();
         } elseif ($action === 'delete') {
+            if (!has_button_permission($current_user, 'articles', 'delete')) {
+                json_response(false, '您没有权限删除文章');
+            }
             delete_article();
         } else {
             json_response(false, '无效的操作');

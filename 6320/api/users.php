@@ -7,19 +7,37 @@ if (!is_logged_in()) {
     json_response(false, '请先登录');
 }
 
+$current_user = app_get_current_user();
+if (!has_menu_permission($current_user, 'users')) {
+    json_response(false, '您没有权限访问此模块');
+}
+
 $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
     case 'GET':
-        get_users_list();
+        if (isset($_GET['roles'])) {
+            get_roles_for_select();
+        } else {
+            get_users_list();
+        }
         break;
     case 'POST':
         $action = $_POST['action'] ?? '';
         if ($action === 'add') {
+            if (!has_button_permission($current_user, 'users', 'add')) {
+                json_response(false, '您没有权限添加用户');
+            }
             add_user();
         } elseif ($action === 'edit') {
+            if (!has_button_permission($current_user, 'users', 'edit')) {
+                json_response(false, '您没有权限编辑用户');
+            }
             edit_user();
         } elseif ($action === 'delete') {
+            if (!has_button_permission($current_user, 'users', 'delete')) {
+                json_response(false, '您没有权限删除用户');
+            }
             delete_user();
         } else {
             json_response(false, '无效的操作');
@@ -29,14 +47,41 @@ switch ($method) {
         json_response(false, '无效的请求方法');
 }
 
+function get_roles_for_select() {
+    $roles = get_roles();
+    $result = [];
+    foreach ($roles as $role) {
+        $result[] = [
+            'id' => $role['id'],
+            'name' => $role['name']
+        ];
+    }
+    json_response(true, '获取成功', $result);
+}
+
 function get_users_list() {
     $users = get_users();
+    $roles = get_roles();
+    
+    $role_map = [];
+    foreach ($roles as $role) {
+        $role_map[$role['id']] = $role;
+    }
+    
     $result = [];
     foreach ($users as $user) {
+        $role_name = '';
+        $role_id = $user['role_id'] ?? 0;
+        if ($role_id > 0 && isset($role_map[$role_id])) {
+            $role_name = $role_map[$role_id]['name'];
+        }
+        
         $result[] = [
             'id' => $user['id'],
             'username' => $user['username'],
             'phone' => $user['phone'],
+            'role_id' => $role_id,
+            'role_name' => $role_name,
             'created_at' => $user['created_at']
         ];
     }
@@ -48,6 +93,7 @@ function add_user() {
     $password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
     $phone = trim($_POST['phone'] ?? '');
+    $role_id = intval($_POST['role_id'] ?? 0);
 
     $result = validate_username($username);
     if ($result !== true) {
@@ -68,6 +114,13 @@ function add_user() {
         json_response(false, $result);
     }
 
+    if ($role_id > 0) {
+        $role = get_role_by_id($role_id);
+        if (!$role) {
+            json_response(false, '选择的角色不存在');
+        }
+    }
+
     $users = get_users();
     foreach ($users as $user) {
         if ($user['username'] === $username) {
@@ -83,6 +136,7 @@ function add_user() {
         'username' => $username,
         'password' => password_hash($password, PASSWORD_DEFAULT),
         'phone' => $phone,
+        'role_id' => $role_id,
         'created_at' => date('Y-m-d H:i:s')
     ];
 
@@ -97,6 +151,7 @@ function edit_user() {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
     $phone = trim($_POST['phone'] ?? '');
+    $role_id = intval($_POST['role_id'] ?? 0);
 
     if ($id <= 0) {
         json_response(false, '无效的用户ID');
@@ -135,6 +190,13 @@ function edit_user() {
         json_response(false, $result);
     }
 
+    if ($role_id > 0) {
+        $role = get_role_by_id($role_id);
+        if (!$role) {
+            json_response(false, '选择的角色不存在');
+        }
+    }
+
     foreach ($users as $index => $user) {
         if ($user['id'] !== $id) {
             if ($user['username'] === $username) {
@@ -148,6 +210,7 @@ function edit_user() {
 
     $users[$user_index]['username'] = $username;
     $users[$user_index]['phone'] = $phone;
+    $users[$user_index]['role_id'] = $role_id;
 
     if (!empty($password)) {
         $users[$user_index]['password'] = password_hash($password, PASSWORD_DEFAULT);
