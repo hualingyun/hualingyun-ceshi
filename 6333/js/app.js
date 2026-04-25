@@ -5,7 +5,7 @@ const foodData = [
         name: '麻辣水煮鱼',
         category: '川菜',
         rating: 4.8,
-        image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=delicious%20spicy%20boiled%20fish%20sichuan%20style%20food%20photography&image_size=square_hd',
+        image: 'https://picsum.photos/seed/fish1/400/300.jpg',
         address: '上海市静安区南京西路123号',
         price: 58,
         description: '正宗四川风味，鱼肉鲜嫩，麻辣鲜香，回味无穷。'
@@ -15,7 +15,7 @@ const foodData = [
         name: '宫保鸡丁',
         category: '川菜',
         rating: 4.6,
-        image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=kung%20pao%20chicken%20sichuan%20traditional%20food%20photography&image_size=square_hd',
+        image: 'https://picsum.photos/seed/chicken1/400/300.jpg',
         address: '上海市黄浦区外滩88号',
         price: 45,
         description: '经典川菜，鸡肉鲜嫩，花生香脆，口味独特。'
@@ -25,7 +25,7 @@ const foodData = [
         name: '麻婆豆腐',
         category: '川菜',
         rating: 4.7,
-        image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=mapo%20tofu%20sichuan%20cuisine%20food%20photography&image_size=square_hd',
+        image: 'https://picsum.photos/seed/tofu1/400/300.jpg',
         address: '上海市徐汇区淮海中路567号',
         price: 38,
         description: '麻辣鲜香，豆腐嫩滑，正宗川味。'
@@ -35,7 +35,7 @@ const foodData = [
         name: '白切鸡',
         category: '粤菜',
         rating: 4.5,
-        image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cantonese%20white%20cut%20chicken%20food%20photography&image_size=square_hd',
+        image: 'https://picsum.photos/seed/chicken2/400/300.jpg',
         address: '上海市浦东新区陆家嘴环路100号',
         price: 52,
         description: '皮爽肉嫩，原汁原味，广东名菜。'
@@ -45,7 +45,7 @@ const foodData = [
         name: '烧鹅',
         category: '粤菜',
         rating: 4.9,
-        image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cantonese%20roast%20goose%20crispy%20skin%20food%20photography&image_size=square_hd',
+        image: 'https://picsum.photos/seed/goose1/400/300.jpg',
         address: '上海市长宁区虹桥路200号',
         price: 68,
         description: '皮脆肉嫩，香气四溢，广东招牌菜。'
@@ -55,7 +55,7 @@ const foodData = [
         name: '剁椒鱼头',
         category: '湘菜',
         rating: 4.7,
-        image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=hunan%20chopped%20chili%20fish%20head%20food%20photography&image_size=square_hd',
+        image: 'https://picsum.photos/seed/fish2/400/300.jpg',
         address: '上海市普陀区长寿路300号',
         price: 78,
         description: '鲜嫩鱼头配剁椒，香辣可口，湖南名菜。'
@@ -65,7 +65,7 @@ const foodData = [
         name: '小炒黄牛肉',
         category: '湘菜',
         rating: 4.8,
-        image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=hunan%20stir%20fried%20beef%20spicy%20food%20photography&image_size=square_hd',
+        image: 'https://picsum.photos/seed/beef1/400/300.jpg',
         address: '上海市杨浦区邯郸路400号',
         price: 62,
         description: '牛肉鲜嫩，香辣入味，下饭神器。'
@@ -75,7 +75,7 @@ const foodData = [
         name: '寿司拼盘',
         category: '日料',
         rating: 4.6,
-        image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=japanese%20sushi%20platter%20fresh%20salmon%20food%20photography&image_size=square_hd',
+        image: 'https://picsum.photos/seed/sushi1/400/300.jpg',
         address: '上海市虹口区四川北路500号',
         price: 88,
         description: '新鲜三文鱼、金枪鱼、北极贝等，美味寿司拼盘。'
@@ -85,7 +85,7 @@ const foodData = [
         name: '拉面',
         category: '日料',
         rating: 4.5,
-        image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=japanese%20ramen%20noodle%20soup%20pork%20food%20photography&image_size=square_hd',
+        image: 'https://picsum.photos/seed/ramen1/400/300.jpg',
         address: '上海市闵行区龙茗路600号',
         price: 42,
         description: '浓郁汤底，劲道面条，日式经典美味。'
@@ -95,7 +95,7 @@ const foodData = [
         name: '牛排',
         category: '西餐',
         rating: 4.7,
-        image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=western%20steak%20grilled%20medium%20rare%20food%20photography&image_size=square_hd',
+        image: 'https://picsum.photos/seed/steak1/400/300.jpg',
         address: '上海市浦东新区世纪大道800号',
         price: 128,
         description: '澳洲进口牛肉，鲜嫩多汁，口感极佳。'
@@ -105,7 +105,7 @@ const foodData = [
         name: '意大利面',
         category: '西餐',
         rating: 4.4,
-        image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=italian%20spaghetti%20bolognese%20tomato%20sauce%20food%20photography&image_size=square_hd',
+        image: 'https://picsum.photos/seed/pasta1/400/300.jpg',
         address: '上海市静安区愚园路700号',
         price: 58,
         description: '经典番茄肉酱意面，美味可口。'
@@ -115,7 +115,7 @@ const foodData = [
         name: '回锅肉',
         category: '川菜',
         rating: 4.6,
-        image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=sichuan%20twice%20cooked%20pork%20food%20photography&image_size=square_hd',
+        image: 'https://picsum.photos/seed/pork1/400/300.jpg',
         address: '上海市黄浦区福州路900号',
         price: 48,
         description: '肥而不腻，香辣可口，川菜经典。'
@@ -128,7 +128,7 @@ const topicsData = [
         id: 1,
         title: '夏日消暑美食',
         description: '炎炎夏日，让我们一起探索清凉爽口的消暑美食，让味蕾享受清爽的感觉。',
-        image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=summer%20cold%20noodles%20ice%20cream%20refreshing%20food%20photography&image_size=landscape_4_3',
+        image: 'https://picsum.photos/seed/summer1/600/400.jpg',
         date: '2026-06-15',
         foods: ['凉皮', '冷面', '冰淇淋', '酸梅汤']
     },
@@ -136,7 +136,7 @@ const topicsData = [
         id: 2,
         title: '冬季暖心火锅',
         description: '寒冷的冬天，没有什么比一顿热气腾腾的火锅更暖心了，各种火锅大盘点。',
-        image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=winter%20hot%20pot%20spicy%20warm%20comfort%20food%20photography&image_size=landscape_4_3',
+        image: 'https://picsum.photos/seed/winter1/600/400.jpg',
         date: '2026-11-20',
         foods: ['四川火锅', '潮汕牛肉火锅', '老北京涮羊肉', '日式寿喜烧']
     },
@@ -144,7 +144,7 @@ const topicsData = [
         id: 3,
         title: '早餐营养指南',
         description: '一日之计在于晨，早餐是一天中最重要的一餐，让我们一起看看有哪些营养美味的早餐选择。',
-        image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=healthy%20breakfast%20oatmeal%20eggs%20fresh%20food%20photography&image_size=landscape_4_3',
+        image: 'https://picsum.photos/seed/breakfast1/600/400.jpg',
         date: '2026-03-10',
         foods: ['燕麦粥', '三明治', '豆浆油条', '西式早餐']
     },
@@ -152,7 +152,7 @@ const topicsData = [
         id: 4,
         title: '深夜食堂',
         description: '夜猫子们的福利，各种深夜美食让你在夜晚也能享受美食的乐趣。',
-        image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=midnight%20snack%20street%20food%20noodles%20food%20photography&image_size=landscape_4_3',
+        image: 'https://picsum.photos/seed/night1/600/400.jpg',
         date: '2026-08-05',
         foods: ['烧烤', '麻辣烫', '小龙虾', '深夜食堂料理']
     }
@@ -370,7 +370,7 @@ function showTopicDetail(id) {
 // 初始化地图
 function initMap() {
     // 创建地图实例
-    map = L.map('map').setView([31.2304, 121.4737], 12);
+    map = L.map('leaflet-map').setView([31.2304, 121.4737], 12);
     
     // 添加OpenStreetMap图层
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -447,7 +447,7 @@ function showOnMap(foodId) {
     }
     
     // 滚动到地图区域
-    document.getElementById('map').scrollIntoView({behavior: 'smooth'});
+    document.getElementById('map-section').scrollIntoView({behavior: 'smooth'});
     
     // 延迟执行，等待滚动完成
     setTimeout(() => {
