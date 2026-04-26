@@ -20,6 +20,20 @@
       "password": "$2a$14$VjTfS73YdTPQPa7gHmZ4wuDGBJ6JbZO3DhOVOk3h3Q3ppxc2YP8yG",
       "email": "",
       "role": "user"
+    },
+    {
+      "id": "7",
+      "username": "a1234567_",
+      "password": "$2a$14$GWVLW8NjRgbqEscKCerGx.Us3oXYUZodMNMVF7GBZliHGldujopbW",
+      "email": "",
+      "role": "user"
+    },
+    {
+      "id": "8",
+      "username": "a123_",
+      "password": "$2a$14$kzaDjbQtauBSzr3kegUFkeGbLipNPzPMFEzZCFdIPD2lTGWIru0h6",
+      "email": "",
+      "role": "user"
     }
   ]
 }

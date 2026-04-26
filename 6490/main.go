@@ -86,6 +86,12 @@ func validateUsername(username string) (bool, string) {
 	if !matched {
 		return false, "用户名必须以字母开头，且只能包含字母、数字和下划线"
 	}
+	hasLetter, _ := regexp.MatchString(`[a-zA-Z]`, username)
+	hasDigit, _ := regexp.MatchString(`[0-9]`, username)
+	hasUnderscore, _ := regexp.MatchString(`_`, username)
+	if !hasLetter || !hasDigit || !hasUnderscore {
+		return false, "用户名必须同时包含字母、数字和下划线"
+	}
 	return true, ""
 }
 
@@ -269,8 +275,6 @@ func main() {
 			var req struct {
 				Username string `json:"username"`
 				Password string `json:"password"`
-				Email    string `json:"email"`
-				Role     string `json:"role"`
 			}
 			
 			if err := c.ShouldBindJSON(&req); err != nil {
@@ -304,17 +308,11 @@ func main() {
 				return
 			}
 
-			role := req.Role
-			if role == "" {
-				role = "user"
-			}
-
 			newUser := User{
 				ID:       generateID(),
 				Username: req.Username,
 				Password: hashedPassword,
-				Email:    req.Email,
-				Role:     role,
+				Role:     "user",
 			}
 
 			data.Users = append(data.Users, newUser)
@@ -326,8 +324,6 @@ func main() {
 				"user": gin.H{
 					"id":       newUser.ID,
 					"username": newUser.Username,
-					"email":    newUser.Email,
-					"role":     newUser.Role,
 				},
 			})
 		})
@@ -337,8 +333,6 @@ func main() {
 			var req struct {
 				Username string `json:"username"`
 				Password string `json:"password"`
-				Email    string `json:"email"`
-				Role     string `json:"role"`
 			}
 			
 			if err := c.ShouldBindJSON(&req); err != nil {
@@ -380,12 +374,6 @@ func main() {
 						data.Users[i].Password = hashedPassword
 					}
 					
-					if req.Email != "" {
-						data.Users[i].Email = req.Email
-					}
-					if req.Role != "" {
-						data.Users[i].Role = req.Role
-					}
 					break
 				}
 			}
