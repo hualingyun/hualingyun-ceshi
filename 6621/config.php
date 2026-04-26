@@ -1,4 +1,6 @@
 <?php
+date_default_timezone_set('Asia/Shanghai');
+
 define('DATA_DIR', __DIR__ . '/data');
 define('BLOGS_FILE', DATA_DIR . '/blogs.json');
 define('CATEGORIES_FILE', DATA_DIR . '/categories.json');

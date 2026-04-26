@@ -233,15 +233,11 @@ function escapeHtml(text) {
 
 function formatDate(dateStr) {
     if (!dateStr) return '-';
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return dateStr;
-    return date.toLocaleDateString('zh-CN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+    const parts = dateStr.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+    if (parts) {
+        return `${parts[1]}-${parts[2]}-${parts[3]} ${parts[4]}:${parts[5]}`;
+    }
+    return dateStr;
 }
 
 function showToast(message, type = 'info') {
