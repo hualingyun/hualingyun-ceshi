@@ -375,7 +375,7 @@ function loadBookDetail(bookId) {
                     <p class="book-detail-description">${escapeHtml(book.description)}</p>
                     <div class="book-actions">
                         <button class="book-action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike(${book.id})">
-                            <span class="like-icon">${isLiked ? '❤️' : '🤍'}</span>
+                            <span class="like-icon">❤️</span>
                             ${isLiked ? '已点赞' : '点赞'}
                             <span id="likeCount">(${book.like_count})</span>
                         </button>

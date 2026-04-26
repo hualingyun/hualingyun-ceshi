@@ -831,7 +831,8 @@ body {
 
 .like-icon {
     font-size: 1.1rem;
-    transition: transform 0.2s;
+    transition: all 0.2s;
+    filter: grayscale(100%) opacity(0.6);
 }
 
 .book-action-btn:hover .like-icon {
@@ -839,6 +840,7 @@ body {
 }
 
 .book-action-btn.liked .like-icon {
+    filter: none;
     animation: heartbeat 0.6s ease-in-out;
 }
 
