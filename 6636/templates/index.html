@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图书推荐系统</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div id="app">
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <h1 class="logo" onclick="showHome()">📚 图书推荐</h1>
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="搜索图书..." onkeypress="handleSearchKeyPress(event)">
+                        <button onclick="searchBooks()">搜索</button>
+                    </div>
+                    <div class="user-area" id="userArea">
+                        <button class="btn-login" onclick="showLoginModal()">登录</button>
+                        <button class="btn-register" onclick="showRegisterModal()">注册</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container">
+                <div id="recommendedSection" class="section">
+                    <h2 class="section-title">🔥 热门推荐</h2>
+                    <div id="recommendedBooks" class="books-grid">
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title" id="booksSectionTitle">📖 全部图书</h2>
+                        <div id="pagination" class="pagination">
+                        </div>
+                    </div>
+                    <div id="booksList" class="books-grid">
+                    </div>
+                    <div id="paginationBottom" class="pagination">
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div id="loginModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('loginModal')">&times;</span>
+                <h2>用户登录</h2>
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="loginUsername">用户名</label>
+                        <input type="text" id="loginUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">密码</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn-primary">登录</button>
+                </form>
+                <p class="form-footer">还没有账号？<a href="#" onclick="showRegisterModal(); return false;">立即注册</a></p>
+            </div>
+        </div>
+
+        <div id="registerModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('registerModal')">&times;</span>
+                <h2>用户注册</h2>
+                <form id="registerForm" onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label for="registerUsername">用户名</label>
+                        <input type="text" id="registerUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">邮箱</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">密码（至少6位）</label>
+                        <input type="password" id="registerPassword" required minlength="6">
+                    </div>
+                    <button type="submit" class="btn-primary">注册</button>
+                </form>
+                <p class="form-footer">已有账号？<a href="#" onclick="showLoginModal(); return false;">立即登录</a></p>
+            </div>
+        </div>
+
+        <div id="bookDetailModal" class="modal modal-large">
+            <div class="modal-content modal-content-large">
+                <span class="close" onclick="closeModal('bookDetailModal')">&times;</span>
+                <div id="bookDetailContent">
+                </div>
+            </div>
+        </div>
+
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
