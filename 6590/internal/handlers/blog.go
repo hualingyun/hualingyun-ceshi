@@ -3,6 +3,7 @@ package handlers
 import (
 	"blog-system/internal/storage"
 	"net/http"
+	"sort"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -61,6 +62,15 @@ func (h *BlogHandler) GetAll(c *gin.Context) {
 			UpdatedAt:    blog.UpdatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}
+
+	// 排序：置顶的博客排在前面，然后按创建时间倒序
+	sort.Slice(response, func(i, j int) bool {
+		if response[i].IsTop != response[j].IsTop {
+			return response[i].IsTop
+		}
+		// 如果都是置顶或都不是置顶，按创建时间倒序
+		return response[i].CreatedAt > response[j].CreatedAt
+	})
 
 	c.JSON(http.StatusOK, response)
 }
