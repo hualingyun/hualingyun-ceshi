@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 220px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+        }
+        .sidebar-header {
+            padding: 0 20px;
+            margin-bottom: 30px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .sidebar-menu {
+            list-style: none;
+        }
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+        .sidebar-menu a {
+            display: block;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        .sidebar-menu a i {
+            margin-right: 10px;
+        }
+        .main-content {
+            flex: 1;
+            margin-left: 220px;
+            padding: 20px;
+        }
+        .header {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header h2 {
+            color: #333;
+            font-size: 18px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .user-info span {
+            color: #666;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5a6fd8;
+        }
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #219a52;
+        }
+        .btn-default {
+            background: #95a5a6;
+            color: white;
+        }
+        .btn-default:hover {
+            background: #7f8c8d;
+        }
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .card-header h3 {
+            color: #333;
+            font-size: 16px;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .action-btns {
+            display: flex;
+            gap: 5px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-header h3 {
+            color: #333;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .error-message {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .welcome-section {
+            text-align: center;
+            padding: 50px 0;
+        }
+        .welcome-section h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .welcome-section p {
+            color: #666;
+            font-size: 16px;
+        }
+        .empty-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        .delete-confirm {
+            text-align: center;
+        }
+        .delete-confirm p {
+            margin-bottom: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                后台管理系统
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active" onclick="showWelcome()"><span>🏠</span> 欢迎页面</a></li>
+                <li><a href="#" onclick="showUserManagement()"><span>👥</span> 用户管理</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="header">
+                <h2 id="pageTitle">欢迎页面</h2>
+                <div class="user-info">
+                    <span id="currentUser">欢迎，管理员</span>
+                    <button class="btn btn-danger btn-sm" onclick="logout()">退出登录</button>
+                </div>
+            </div>
+
+            <div id="welcomeSection" class="welcome-section">
+                <h1>欢迎使用后台管理系统</h1>
+                <p>请点击左侧菜单进行操作</p>
+            </div>
+
+            <div id="userManagementSection" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>用户列表</h3>
+                        <button class="btn btn-primary" onclick="openAddModal()">添加用户</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="userTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>用户名</th>
+                                    <th>邮箱</th>
+                                    <th>角色</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">添加用户</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="userForm">
+                <input type="hidden" id="editUserId">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" name="username" placeholder="请输入用户名">
+                    <div class="error-message" id="usernameError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="password">密码 <span id="passwordHint">(编辑时留空表示不修改)</span></label>
+                    <input type="password" id="password" name="password" placeholder="请输入密码">
+                    <div class="error-message" id="passwordError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="email">邮箱</label>
+                    <input type="email" id="email" name="email" placeholder="请输入邮箱（选填）">
+                </div>
+                <div class="form-group">
+                    <label for="role">角色</label>
+                    <select id="role" name="role">
+                        <option value="user">普通用户</option>
+                        <option value="admin">管理员</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" onclick="closeModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>确认删除</h3>
+                <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <div class="delete-confirm">
+                <p>确定要删除该用户吗？此操作不可恢复。</p>
+                <div class="modal-footer" style="justify-content: center;">
+                    <button class="btn btn-default" onclick="closeDeleteModal()">取消</button>
+                    <button class="btn btn-danger" onclick="confirmDelete()">确认删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDeleteId = null;
+        let currentUser = null;
+
+        window.onload = function() {
+            currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = '/login';
+                return;
+            }
+            currentUser = JSON.parse(currentUser);
+            document.getElementById('currentUser').textContent = '欢迎，' + currentUser.username;
+            loadUsers();
+        };
+
+        function showWelcome() {
+            document.getElementById('welcomeSection').style.display = 'block';
+            document.getElementById('userManagementSection').style.display = 'none';
+            document.getElementById('pageTitle').textContent = '欢迎页面';
+            document.querySelectorAll('.sidebar-menu a').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sidebar-menu a')[0].classList.add('active');
+        }
+
+        function showUserManagement() {
+            document.getElementById('welcomeSection').style.display = 'none';
+            document.getElementById('userManagementSection').style.display = 'block';
+            document.getElementById('pageTitle').textContent = '用户管理';
+            document.querySelectorAll('.sidebar-menu a').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sidebar-menu a')[1].classList.add('active');
+            loadUsers();
+        }
+
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/users');
+                const data = await response.json();
+                
+                const tbody = document.getElementById('userTableBody');
+                tbody.innerHTML = '';
+                
+                if (data.success && data.users.length > 0) {
+                    data.users.forEach(user => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${user.id}</td>
+                            <td>${user.username}</td>
+                            <td>${user.email || '-'}</td>
+                            <td>${user.role === 'admin' ? '管理员' : '普通用户'}</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn btn-primary btn-sm" onclick="openEditModal('${user.id}')">编辑</button>
+                                    <button class="btn btn-danger btn-sm" onclick="openDeleteModal('${user.id}')">删除</button>
+                                </div>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" class="empty-data">暂无数据</td></tr>';
+                }
+            } catch (error) {
+                alert('加载用户列表失败');
+            }
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = '添加用户';
+            document.getElementById('editUserId').value = '';
+            document.getElementById('userForm').reset();
+            document.getElementById('passwordHint').style.display = 'none';
+            document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+            document.getElementById('userModal').classList.add('active');
+        }
+
+        async function openEditModal(id) {
+            try {
+                const response = await fetch('/api/users/' + id);
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('modalTitle').textContent = '编辑用户';
+                    document.getElementById('editUserId').value = id;
+                    document.getElementById('username').value = data.user.username;
+                    document.getElementById('password').value = '';
+                    document.getElementById('email').value = data.user.email || '';
+                    document.getElementById('role').value = data.user.role;
+                    document.getElementById('passwordHint').style.display = 'inline';
+                    document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+                    document.getElementById('userModal').classList.add('active');
+                } else {
+                    alert('获取用户信息失败');
+                }
+            } catch (error) {
+                alert('获取用户信息失败');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('userModal').classList.remove('active');
+        }
+
+        function openDeleteModal(id) {
+            currentDeleteId = id;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeDeleteModal() {
+            currentDeleteId = null;
+            document.getElementById('deleteModal').classList.remove('active');
+        }
+
+        async function confirmDelete() {
+            if (!currentDeleteId) return;
+            
+            try {
+                const response = await fetch('/api/users/' + currentDeleteId, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    closeDeleteModal();
+                    loadUsers();
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                alert('删除失败');
+            }
+        }
+
+        document.getElementById('userForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+            
+            const id = document.getElementById('editUserId').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const email = document.getElementById('email').value;
+            const role = document.getElementById('role').value;
+            
+            let hasError = false;
+            
+            if (!username) {
+                document.getElementById('usernameError').textContent = '用户名必填';
+                hasError = true;
+            } else if (username.length < 3 || username.length > 10) {
+                document.getElementById('usernameError').textContent = '用户名长度必须为3-10个字符';
+                hasError = true;
+            } else if (!/^[a-zA-Z][a-zA-Z0-9_]*$/.test(username)) {
+                document.getElementById('usernameError').textContent = '用户名必须以字母开头，且只能包含字母、数字和下划线';
+                hasError = true;
+            }
+            
+            if (!id && !password) {
+                document.getElementById('passwordError').textContent = '密码必填';
+                hasError = true;
+            } else if (password) {
+                if (password.length < 6 || password.length > 20) {
+                    document.getElementById('passwordError').textContent = '密码长度必须为6-20个字符';
+                    hasError = true;
+                } else if (!/^[a-zA-Z]/.test(password)) {
+                    document.getElementById('passwordError').textContent = '密码必须以字母开头';
+                    hasError = true;
+                } else if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+                    document.getElementById('passwordError').textContent = '密码必须包含大小写字母和数字';
+                    hasError = true;
+                }
+            }
+            
+            if (hasError) return;
+            
+            try {
+                let url, method;
+                const body = {
+                    username: username,
+                    email: email,
+                    role: role
+                };
+                
+                if (password) {
+                    body.password = password;
+                }
+                
+                if (id) {
+                    url = '/api/users/' + id;
+                    method = 'PUT';
+                } else {
+                    url = '/api/users';
+                    method = 'POST';
+                }
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    closeModal();
+                    loadUsers();
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                alert('保存失败');
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '/login';
+        }
+    </script>
+</body>
+</html>

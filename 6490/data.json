@@ -1,0 +1,25 @@
+{
+  "users": [
+    {
+      "id": "3",
+      "username": "a123",
+      "password": "$2a$14$YAf9/oJtk9uEHzGt7QVoZOlaOGqr1dvt.PMq7hyfaCAXHBrk6vlYu",
+      "email": "",
+      "role": "user"
+    },
+    {
+      "id": "4",
+      "username": "a1234",
+      "password": "$2a$14$j2BjWoZ/3GYjdpveDBMcRuch1hvR/Oz6hei21r/vFeAmagKRTbI0q",
+      "email": "",
+      "role": "user"
+    },
+    {
+      "id": "5",
+      "username": "a12",
+      "password": "$2a$14$VjTfS73YdTPQPa7gHmZ4wuDGBJ6JbZO3DhOVOk3h3Q3ppxc2YP8yG",
+      "email": "",
+      "role": "user"
+    }
+  ]
+}
