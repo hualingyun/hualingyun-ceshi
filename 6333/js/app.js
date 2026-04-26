@@ -158,7 +158,22 @@ const topicsData = [
     }
 ];
 
-// 地图上的店铺位置数据（以上海为例）
+// WGS84转BD-09坐标转换函数（百度地图使用BD-09坐标系）
+function wgs84ToBd09(lat, lng) {
+    var x_pi = 3.14159265358979324 * 3000.0 / 180.0;
+    var x = lng;
+    var y = lat;
+    var z = Math.sqrt(x * x + y * y) + 0.00002 * Math.sin(y * x_pi);
+    var theta = Math.atan2(y, x) + 0.000003 * Math.cos(x * x_pi);
+    var bd_lng = z * Math.cos(theta) + 0.0065;
+    var bd_lat = z * Math.sin(theta) + 0.006;
+    return {
+        lat: bd_lat,
+        lng: bd_lng
+    };
+}
+
+// 地图上的店铺位置数据（以上海为例，使用WGS84坐标）
 const shopLocations = [
     {
         id: 1,
@@ -225,15 +240,49 @@ const shopLocations = [
 // 全局变量
 let map;
 let markers = [];
+let currentShop = null;
 
 // 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', function() {
     initNavigation();
     renderFoodList('all');
     renderTopics();
-    initMap();
     initTabs();
+    
+    // 尝试加载百度地图
+    if (typeof loadBaiduMap === 'function') {
+        loadBaiduMap();
+    } else {
+        console.log('百度地图加载函数未定义，地图功能将不可用');
+        showMapPlaceholder();
+    }
 });
+
+// 显示地图占位符
+function showMapPlaceholder() {
+    var mapContainer = document.getElementById('leaflet-map');
+    if (mapContainer) {
+        mapContainer.innerHTML = `
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; background-color: #f5f5f5; color: #666; text-align: center; padding: 20px;">
+                <h3 style="margin-bottom: 15px; color: #ff6b6b;">地图加载说明</h3>
+                <p style="margin-bottom: 10px;">要使用百度地图功能，您需要申请百度地图AK密钥。</p>
+                <p style="margin-bottom: 15px;">请按以下步骤操作：</p>
+                <ol style="text-align: left; max-width: 500px; margin: 0 auto;">
+                    <li style="margin-bottom: 8px;">访问 <a href="https://lbsyun.baidu.com/" target="_blank" style="color: #ff6b6b;">百度地图开放平台</a></li>
+                    <li style="margin-bottom: 8px;">注册/登录百度账号</li>
+                    <li style="margin-bottom: 8px;">进入"控制台" → "应用管理" → "我的应用"</li>
+                    <li style="margin-bottom: 8px;">点击"创建应用"，类型选择"浏览器端"</li>
+                    <li style="margin-bottom: 8px;">填写Referer白名单（可填 * 用于测试）</li>
+                    <li style="margin-bottom: 8px;">提交后获取AK密钥</li>
+                    <li style="margin-bottom: 8px;">将AK密钥替换到index.html中的AK变量</li>
+                </ol>
+                <p style="margin-top: 20px; font-size: 14px; color: #999;">
+                    当前位置：index.html 第118行附近：<code style="background: #eee; padding: 2px 6px; border-radius: 3px;">var AK = '请替换为您的百度地图AK密钥';</code>
+                </p>
+            </div>
+        `;
+    }
+}
 
 // 初始化导航栏
 function initNavigation() {
@@ -367,44 +416,94 @@ function showTopicDetail(id) {
     alert(`【${topic.title}】\n\n${topic.description}\n\n推荐美食：${topic.foods.join('、')}\n\n发布日期：${topic.date}`);
 }
 
-// 初始化地图
+// 初始化地图（百度地图版本）
 function initMap() {
-    // 创建地图实例
-    map = L.map('leaflet-map').setView([31.2304, 121.4737], 12);
+    // 检查BMap是否可用
+    if (typeof BMap === 'undefined') {
+        console.log('百度地图API未加载');
+        showMapPlaceholder();
+        return;
+    }
     
-    // 添加OpenStreetMap图层
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19
-    }).addTo(map);
-    
-    // 添加店铺标记
-    addShopMarkers();
+    try {
+        // 创建地图实例
+        map = new BMap.Map('leaflet-map');
+        
+        // 以上海为中心点（转换为百度坐标）
+        var centerPoint = wgs84ToBd09(31.2304, 121.4737);
+        var point = new BMap.Point(centerPoint.lng, centerPoint.lat);
+        
+        // 初始化地图，设置中心点坐标和地图级别
+        map.centerAndZoom(point, 12);
+        
+        // 启用滚轮放大缩小
+        map.enableScrollWheelZoom(true);
+        
+        // 添加地图控件
+        map.addControl(new BMap.NavigationControl());  // 添加平移缩放控件
+        map.addControl(new BMap.ScaleControl());       // 添加比例尺控件
+        map.addControl(new BMap.OverviewMapControl()); // 添加缩略地图控件
+        map.addControl(new BMap.MapTypeControl());      // 添加地图类型控件
+        
+        // 添加店铺标记
+        addShopMarkers();
+        
+        console.log('百度地图初始化成功');
+    } catch (e) {
+        console.error('百度地图初始化失败:', e);
+        showMapPlaceholder();
+    }
 }
 
-// 添加店铺标记
+// 添加店铺标记（百度地图版本）
 function addShopMarkers() {
+    if (!map || typeof BMap === 'undefined') return;
+    
     shopLocations.forEach(shop => {
-        // 创建自定义图标
-        const icon = L.divIcon({
-            className: 'custom-marker',
-            html: `<div style="background-color: #ff6b6b; color: white; padding: 8px 12px; border-radius: 5px; font-weight: bold; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">${shop.name}</div>`,
-            iconSize: [100, 40],
-            iconAnchor: [50, 40]
+        // 转换坐标
+        var bdPoint = wgs84ToBd09(shop.lat, shop.lng);
+        var point = new BMap.Point(bdPoint.lng, bdPoint.lat);
+        
+        // 创建自定义标记
+        var marker = new BMap.Marker(point);
+        map.addOverlay(marker);
+        
+        // 创建自定义标签
+        var label = new BMap.Label(shop.name, {
+            offset: new BMap.Size(20, -10),
+            position: point
         });
         
-        // 添加标记
-        const marker = L.marker([shop.lat, shop.lng], {icon: icon}).addTo(map);
+        label.setStyle({
+            backgroundColor: '#ff6b6b',
+            color: 'white',
+            border: 'none',
+            padding: '5px 10px',
+            borderRadius: '4px',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
+        });
+        
+        map.addOverlay(label);
         
         // 绑定点击事件
-        marker.on('click', function() {
-            showShopInfo(shop);
-        });
+        function createClickHandler(s) {
+            return function(e) {
+                showShopInfo(s);
+            };
+        }
+        
+        marker.addEventListener('click', createClickHandler(shop));
+        label.addEventListener('click', createClickHandler(shop));
         
         // 添加到标记数组
         markers.push({
             marker: marker,
-            shop: shop
+            label: label,
+            shop: shop,
+            point: point
         });
     });
 }
@@ -434,7 +533,7 @@ function showShopInfo(shop) {
     shopInfo.scrollIntoView({behavior: 'smooth', block: 'nearest'});
 }
 
-// 在地图上显示特定美食
+// 在地图上显示特定美食（百度地图版本）
 function showOnMap(foodId) {
     const food = foodData.find(f => f.id === foodId);
     if (!food) return;
@@ -451,16 +550,36 @@ function showOnMap(foodId) {
     
     // 延迟执行，等待滚动完成
     setTimeout(() => {
-        // 定位到店铺位置
-        map.setView([shop.lat, shop.lng], 15);
+        if (!map || typeof BMap === 'undefined') {
+            showShopInfo(shop);
+            alert('地图未加载，请先配置百度地图AK密钥');
+            return;
+        }
+        
+        // 转换坐标
+        var bdPoint = wgs84ToBd09(shop.lat, shop.lng);
+        var point = new BMap.Point(bdPoint.lng, bdPoint.lat);
+        
+        // 定位到店铺位置并放大
+        map.centerAndZoom(point, 15);
         
         // 显示店铺信息
         showShopInfo(shop);
         
-        // 高亮对应的标记（通过模拟点击）
+        // 创建信息窗口
         const markerData = markers.find(m => m.shop.id === shop.id);
         if (markerData) {
-            markerData.marker.openPopup();
+            var infoWindow = new BMap.InfoWindow(
+                `<div style="padding: 10px; min-width: 200px;">
+                    <h4 style="margin: 0 0 10px 0; color: #ff6b6b;">${shop.name}</h4>
+                    <p style="margin: 5px 0;"><strong>店铺：</strong>${shop.shop}</p>
+                    <p style="margin: 5px 0;"><strong>菜系：</strong>${shop.category}</p>
+                    <p style="margin: 5px 0;"><strong>地址：</strong>${shop.address}</p>
+                    <p style="margin: 5px 0;"><strong>评分：</strong>★ ${shop.rating}</p>
+                    <p style="margin: 5px 0;"><strong>人均：</strong>¥${shop.price}</p>
+                </div>`
+            );
+            map.openInfoWindow(infoWindow, point);
         }
     }, 500);
 }

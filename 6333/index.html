@@ -4,8 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>美食推荐分享网站</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .baidu-map-marker {
+            background-color: #ff6b6b;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+    </style>
 </head>
 <body>
     <!-- 导航栏 -->
@@ -16,7 +27,7 @@
             </div>
             <ul class="nav-links">
                 <li><a href="#recommend" class="active">美食推荐</a></li>
-                <li><a href="#map">美食地图</a></li>
+                <li><a href="#map-section">美食地图</a></li>
                 <li><a href="#topics">美食专题</a></li>
             </ul>
             <div class="mobile-menu-btn">
@@ -91,7 +102,32 @@
     </footer>
 
     <!-- 引入JavaScript -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        var BMap;
+        var BMAP_ANCHOR_TOP_LEFT;
+        var BMAP_STATUS_SUCCESS;
+        
+        window.baiduMapLoaded = false;
+        
+        function loadBaiduMap() {
+            if (window.baiduMapLoaded) {
+                initBaiduMap();
+                return;
+            }
+            
+            var AK = 'nSxiPohfziUaCuONe4ViUP2N';
+            var script = document.createElement('script');
+            script.src = 'https://api.map.baidu.com/api?v=3.0&ak=' + AK + '&callback=initBaiduMap';
+            document.head.appendChild(script);
+        }
+        
+        function initBaiduMap() {
+            window.baiduMapLoaded = true;
+            if (typeof initMap === 'function') {
+                initMap();
+            }
+        }
+    </script>
     <script src="js/app.js"></script>
 </body>
 </html>
