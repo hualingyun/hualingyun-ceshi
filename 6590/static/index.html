@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>博客列表 - 博客系统</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>博客管理系统</h1>
+            <nav class="nav">
+                <a href="/" class="active">博客列表</a>
+                <a href="/categories">类别管理</a>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            <div class="action-bar">
+                <button class="btn btn-primary" onclick="location.href='/add'">添加博客</button>
+            </div>
+
+            <div class="table-container">
+                <table class="blog-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>博客标题</th>
+                            <th>类别</th>
+                            <th>内容摘要</th>
+                            <th>推荐</th>
+                            <th>置顶</th>
+                            <th>创建日期</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="blogList">
+                        <tr>
+                            <td colspan="8" class="loading">加载中...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/common.js"></script>
+    <script>
+        // 加载博客列表
+        async function loadBlogs() {
+            try {
+                const blogs = await api.get('/api/blogs');
+                const blogList = document.getElementById('blogList');
+                
+                // 确保blogs是数组
+                const blogArray = Array.isArray(blogs) ? blogs : [];
+                
+                if (blogArray.length === 0) {
+                    blogList.innerHTML = '<tr><td colspan="8" class="empty">暂无博客数据，点击上方"添加博客"按钮创建第一篇博客</td></tr>';
+                    return;
+                }
+
+                blogList.innerHTML = blogArray.map(blog => `
+                    <tr>
+                        <td>${blog.id}</td>
+                        <td class="title-cell">${escapeHtml(blog.title)}</td>
+                        <td>${escapeHtml(blog.category_name)}</td>
+                        <td class="content-cell">${escapeHtml(blog.content.substring(0, 50))}${blog.content.length > 50 ? '...' : ''}</td>
+                        <td>
+                            <span class="badge ${blog.is_recommend ? 'badge-success' : 'badge-secondary'}">
+                                ${blog.is_recommend ? '是' : '否'}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge ${blog.is_top ? 'badge-warning' : 'badge-secondary'}">
+                                ${blog.is_top ? '是' : '否'}
+                            </span>
+                        </td>
+                        <td>${blog.created_at}</td>
+                        <td class="action-cell">
+                            <button class="btn btn-sm btn-info" onclick="editBlog(${blog.id})">编辑</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteBlog(${blog.id}, '${escapeHtml(blog.title)}')">删除</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                document.getElementById('blogList').innerHTML = 
+                    `<tr><td colspan="8" class="error">加载失败: ${error.message}</td></tr>`;
+            }
+        }
+
+        // 编辑博客
+        function editBlog(id) {
+            location.href = `/edit/${id}`;
+        }
+
+        // 删除博客
+        async function deleteBlog(id, title) {
+            if (!confirm(`确定要删除博客"${title}"吗？`)) {
+                return;
+            }
+
+            try {
+                await api.delete(`/api/blogs/${id}`);
+                showMessage('删除成功', 'success');
+                loadBlogs();
+            } catch (error) {
+                showMessage(error.message, 'error');
+            }
+        }
+
+        // 页面加载时执行
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBlogs();
+        });
+    </script>
+</body>
+</html>
