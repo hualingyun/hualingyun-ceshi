@@ -23,11 +23,13 @@ class MemoryGame {
         this.boardElement = document.getElementById('game-board');
         this.timeElement = document.getElementById('time');
         this.movesElement = document.getElementById('moves');
+        this.bestTimeElement = document.getElementById('best-time');
         this.victoryModal = document.getElementById('victory-modal');
         this.finalTimeElement = document.getElementById('final-time');
         this.finalMovesElement = document.getElementById('final-moves');
         this.ratingElement = document.getElementById('rating');
         
+        this.loadBestTime();
         this.bindEvents();
         this.startGame();
     }
@@ -58,7 +60,37 @@ class MemoryGame {
         });
         
         this.boardSize = size;
+        this.loadBestTime();
         this.startGame();
+    }
+    
+    getStorageKey() {
+        return `memory_game_best_time_${this.boardSize}x${this.boardSize}`;
+    }
+    
+    loadBestTime() {
+        const key = this.getStorageKey();
+        const bestTime = localStorage.getItem(key);
+        
+        if (bestTime) {
+            const minutes = Math.floor(parseInt(bestTime) / 60);
+            const secs = parseInt(bestTime) % 60;
+            this.bestTimeElement.textContent = `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        } else {
+            this.bestTimeElement.textContent = '--:--';
+        }
+    }
+    
+    saveBestTime() {
+        const key = this.getStorageKey();
+        const currentBest = localStorage.getItem(key);
+        
+        if (!currentBest || this.seconds < parseInt(currentBest)) {
+            localStorage.setItem(key, this.seconds.toString());
+            this.loadBestTime();
+            return true;
+        }
+        return false;
     }
     
     startGame() {
@@ -222,8 +254,9 @@ class MemoryGame {
         this.timer = null;
         this.isPlaying = false;
         
+        const isNewRecord = this.saveBestTime();
         const rating = this.calculateRating();
-        this.showVictoryModal(rating);
+        this.showVictoryModal(rating, isNewRecord);
     }
     
     calculateRating() {
@@ -249,10 +282,17 @@ class MemoryGame {
         return '⭐'.repeat(stars);
     }
     
-    showVictoryModal(rating) {
+    showVictoryModal(rating, isNewRecord) {
         this.finalTimeElement.textContent = this.timeElement.textContent;
         this.finalMovesElement.textContent = this.moves;
         this.ratingElement.textContent = rating;
+        
+        const victoryTitle = document.getElementById('victory-title');
+        if (isNewRecord) {
+            victoryTitle.textContent = '🏆 新纪录！恭喜获胜！';
+        } else {
+            victoryTitle.textContent = '🎉 恭喜获胜！';
+        }
         
         this.victoryModal.classList.remove('hidden');
     }
