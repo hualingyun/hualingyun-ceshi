@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>记忆力训练游戏</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>记忆力训练游戏</h1>
+            <div class="game-info">
+                <div class="info-item">
+                    <span>时间：</span>
+                    <span id="time">00:00</span>
+                </div>
+                <div class="info-item">
+                    <span>步数：</span>
+                    <span id="moves">0</span>
+                </div>
+            </div>
+        </header>
+        
+        <div class="difficulty-selector">
+            <button class="difficulty-btn active" data-size="4">简单 (4×4)</button>
+            <button class="difficulty-btn" data-size="6">中等 (6×6)</button>
+            <button class="difficulty-btn" data-size="8">困难 (8×8)</button>
+        </div>
+        
+        <div class="game-container">
+            <div id="game-board" class="game-board"></div>
+        </div>
+        
+        <div class="controls">
+            <button id="restart-btn">重新开始</button>
+        </div>
+    </div>
+    
+    <div id="victory-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>🎉 恭喜获胜！</h2>
+            <div class="victory-stats">
+                <p>完成时间：<span id="final-time"></span></p>
+                <p>总步数：<span id="final-moves"></span></p>
+                <p>评分：<span id="rating"></span></p>
+            </div>
+            <button id="play-again-btn">再玩一次</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
