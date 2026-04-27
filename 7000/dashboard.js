@@ -18,6 +18,8 @@ class DashboardManager {
         this.resizeStartHeight = 0;
         
         this.chartPositions = new Map();
+        this.animationInProgress = false;
+        this.swapCandidate = null;
         
         this.themeColors = {
             dark: {
@@ -350,13 +352,7 @@ class DashboardManager {
             const width = pos ? pos.width : 400;
             const height = pos ? pos.height : 380;
             
-            const hasCollision = this.checkCollision(newX, newY, width, height, chartId);
-            
-            if (hasCollision) {
-                this.draggedElement.classList.add('collision-warning');
-            } else {
-                this.draggedElement.classList.remove('collision-warning');
-            }
+            this.handleDragWithPush(chartId, newX, newY, width, height);
             
             this.draggedElement.style.left = `${newX}px`;
             this.draggedElement.style.top = `${newY}px`;
@@ -376,17 +372,7 @@ class DashboardManager {
             const pos = this.chartPositions.get(chartId);
             
             if (pos) {
-                const hasCollision = this.checkCollision(
-                    pos.x, pos.y,
-                    newWidth, newHeight,
-                    chartId
-                );
-                
-                if (hasCollision) {
-                    this.resizeElement.classList.add('collision-warning');
-                } else {
-                    this.resizeElement.classList.remove('collision-warning');
-                }
+                this.handleResizeWithPush(chartId, pos.x, pos.y, newWidth, newHeight);
             }
             
             this.resizeElement.style.width = `${newWidth}px`;
@@ -397,6 +383,281 @@ class DashboardManager {
                 chartData.chart.resize();
             }
         }
+    }
+    
+    handleDragWithPush(draggedId, newX, newY, width, height) {
+        const collided = this.getCollidedCharts(newX, newY, width, height, draggedId);
+        
+        if (collided.length === 0) {
+            this.draggedElement.classList.remove('collision-warning');
+            this.swapCandidate = null;
+            this.clearSwapHighlight();
+            return;
+        }
+        
+        const mainCollision = this.findMainCollision(newX, newY, width, height, collided);
+        
+        if (mainCollision) {
+            const collisionId = mainCollision.id;
+            const collisionPos = mainCollision.pos;
+            
+            const overlapX = this.calculateOverlapX(newX, width, collisionPos.x, collisionPos.width);
+            const overlapY = this.calculateOverlapY(newY, height, collisionPos.y, collisionPos.height);
+            
+            const coverageRatio = this.calculateCoverageRatio(
+                newX, newY, width, height,
+                collisionPos.x, collisionPos.y, collisionPos.width, collisionPos.height
+            );
+            
+            if (coverageRatio > 0.6) {
+                this.swapCandidate = collisionId;
+                this.highlightSwapCandidate(collisionId);
+                this.draggedElement.classList.add('collision-warning');
+                return;
+            }
+            
+            this.swapCandidate = null;
+            this.clearSwapHighlight();
+            
+            const pushDirection = this.determinePushDirection(
+                newX, newY, width, height,
+                collisionPos.x, collisionPos.y, collisionPos.width, collisionPos.height
+            );
+            
+            this.pushChart(collisionId, pushDirection, Math.max(overlapX, overlapY), draggedId);
+            this.draggedElement.classList.add('collision-warning');
+        }
+    }
+    
+    getCollidedCharts(x, y, width, height, excludeId) {
+        const collided = [];
+        
+        for (const [chartId, pos] of this.chartPositions.entries()) {
+            if (chartId === excludeId) continue;
+            
+            if (this.doRectsIntersect(
+                x, y, width, height,
+                pos.x, pos.y, pos.width, pos.height
+            )) {
+                collided.push({
+                    id: chartId,
+                    pos: pos
+                });
+            }
+        }
+        
+        return collided;
+    }
+    
+    findMainCollision(x, y, width, height, collided) {
+        if (collided.length === 0) return null;
+        if (collided.length === 1) return collided[0];
+        
+        let maxOverlap = 0;
+        let mainCollision = null;
+        
+        for (const collision of collided) {
+            const overlap = this.calculateOverlapArea(
+                x, y, width, height,
+                collision.pos.x, collision.pos.y, collision.pos.width, collision.pos.height
+            );
+            
+            if (overlap > maxOverlap) {
+                maxOverlap = overlap;
+                mainCollision = collision;
+            }
+        }
+        
+        return mainCollision;
+    }
+    
+    calculateOverlapArea(x1, y1, w1, h1, x2, y2, w2, h2) {
+        const overlapXStart = Math.max(x1, x2);
+        const overlapXEnd = Math.min(x1 + w1, x2 + w2);
+        const overlapWidth = Math.max(0, overlapXEnd - overlapXStart);
+        
+        const overlapYStart = Math.max(y1, y2);
+        const overlapYEnd = Math.min(y1 + h1, y2 + h2);
+        const overlapHeight = Math.max(0, overlapYEnd - overlapYStart);
+        
+        return overlapWidth * overlapHeight;
+    }
+    
+    calculateCoverageRatio(x1, y1, w1, h1, x2, y2, w2, h2) {
+        const overlapArea = this.calculateOverlapArea(x1, y1, w1, h1, x2, y2, w2, h2);
+        const smallerArea = Math.min(w1 * h1, w2 * h2);
+        return overlapArea / smallerArea;
+    }
+    
+    calculateOverlapX(x1, w1, x2, w2) {
+        const overlapStart = Math.max(x1, x2);
+        const overlapEnd = Math.min(x1 + w1, x2 + w2);
+        return Math.max(0, overlapEnd - overlapStart);
+    }
+    
+    calculateOverlapY(y1, h1, y2, h2) {
+        const overlapStart = Math.max(y1, y2);
+        const overlapEnd = Math.min(y1 + h1, y2 + h2);
+        return Math.max(0, overlapEnd - overlapStart);
+    }
+    
+    determinePushDirection(x1, y1, w1, h1, x2, y2, w2, h2) {
+        const centerX1 = x1 + w1 / 2;
+        const centerY1 = y1 + h1 / 2;
+        const centerX2 = x2 + w2 / 2;
+        const centerY2 = y2 + h2 / 2;
+        
+        const dx = centerX2 - centerX1;
+        const dy = centerY2 - centerY1;
+        
+        if (Math.abs(dx) > Math.abs(dy)) {
+            return dx > 0 ? 'right' : 'left';
+        } else {
+            return dy > 0 ? 'down' : 'up';
+        }
+    }
+    
+    pushChart(chartId, direction, amount, excludeId) {
+        const pos = this.chartPositions.get(chartId);
+        if (!pos) return;
+        
+        const pushAmount = amount + 20;
+        let newX = pos.x;
+        let newY = pos.y;
+        
+        switch (direction) {
+            case 'right':
+                newX = pos.x + pushAmount;
+                break;
+            case 'left':
+                newX = pos.x - pushAmount;
+                break;
+            case 'down':
+                newY = pos.y + pushAmount;
+                break;
+            case 'up':
+                newY = pos.y - pushAmount;
+                break;
+        }
+        
+        const container = document.getElementById('dashboardContainer');
+        const containerRect = container.getBoundingClientRect();
+        const containerPadding = 32;
+        
+        newX = Math.max(containerPadding, newX);
+        newY = Math.max(containerPadding, newY);
+        
+        const furtherCollisions = this.getCollidedCharts(newX, newY, pos.width, pos.height, excludeId);
+        furtherCollisions.forEach(c => {
+            if (c.id !== chartId && c.id !== excludeId) {
+                this.pushChart(c.id, direction, amount, excludeId);
+            }
+        });
+        
+        this.chartPositions.set(chartId, {
+            ...pos,
+            x: newX,
+            y: newY
+        });
+        
+        const chartElement = document.querySelector(`[data-chart-id="${chartId}"]`);
+        if (chartElement) {
+            this.animateChartPosition(chartElement, newX, newY);
+        }
+    }
+    
+    animateChartPosition(element, x, y) {
+        element.style.transition = 'left 0.2s ease-out, top 0.2s ease-out';
+        element.style.left = `${x}px`;
+        element.style.top = `${y}px`;
+        
+        setTimeout(() => {
+            element.style.transition = '';
+        }, 200);
+    }
+    
+    highlightSwapCandidate(chartId) {
+        this.clearSwapHighlight();
+        
+        const element = document.querySelector(`[data-chart-id="${chartId}"]`);
+        if (element) {
+            element.classList.add('swap-highlight');
+        }
+    }
+    
+    clearSwapHighlight() {
+        document.querySelectorAll('.swap-highlight').forEach(el => {
+            el.classList.remove('swap-highlight');
+        });
+    }
+    
+    handleResizeWithPush(resizeId, x, y, newWidth, newHeight) {
+        const collided = this.getCollidedCharts(x, y, newWidth, newHeight, resizeId);
+        
+        if (collided.length === 0) {
+            this.resizeElement.classList.remove('collision-warning');
+            return;
+        }
+        
+        this.resizeElement.classList.add('collision-warning');
+        
+        collided.forEach(collision => {
+            const collisionId = collision.id;
+            const collisionPos = collision.pos;
+            
+            const direction = this.determinePushDirection(
+                x, y, newWidth, newHeight,
+                collisionPos.x, collisionPos.y, collisionPos.width, collisionPos.height
+            );
+            
+            const overlapX = this.calculateOverlapX(x, newWidth, collisionPos.x, collisionPos.width);
+            const overlapY = this.calculateOverlapY(y, newHeight, collisionPos.y, collisionPos.height);
+            
+            this.pushChart(collisionId, direction, Math.max(overlapX, overlapY), resizeId);
+        });
+    }
+    
+    swapPositions(id1, id2) {
+        const pos1 = this.chartPositions.get(id1);
+        const pos2 = this.chartPositions.get(id2);
+        
+        if (!pos1 || !pos2) return false;
+        
+        this.chartPositions.set(id1, {
+            x: pos2.x,
+            y: pos2.y,
+            width: pos1.width,
+            height: pos1.height
+        });
+        
+        this.chartPositions.set(id2, {
+            x: pos1.x,
+            y: pos1.y,
+            width: pos2.width,
+            height: pos2.height
+        });
+        
+        const el1 = document.querySelector(`[data-chart-id="${id1}"]`);
+        const el2 = document.querySelector(`[data-chart-id="${id2}"]`);
+        
+        if (el1) {
+            el1.style.transition = 'left 0.3s ease-out, top 0.3s ease-out';
+            el1.style.left = `${pos2.x}px`;
+            el1.style.top = `${pos2.y}px`;
+        }
+        
+        if (el2) {
+            el2.style.transition = 'left 0.3s ease-out, top 0.3s ease-out';
+            el2.style.left = `${pos1.x}px`;
+            el2.style.top = `${pos1.y}px`;
+        }
+        
+        setTimeout(() => {
+            if (el1) el1.style.transition = '';
+            if (el2) el2.style.transition = '';
+        }, 300);
+        
+        return true;
     }
     
     handleMouseUp(e) {
@@ -412,22 +673,22 @@ class DashboardManager {
             const width = pos ? pos.width : 400;
             const height = pos ? pos.height : 380;
             
-            const result = this.findNonOverlappingPosition(currentX, currentY, width, height, chartId);
-            
-            if (result.valid) {
-                this.draggedElement.style.left = `${result.x}px`;
-                this.draggedElement.style.top = `${result.y}px`;
+            if (this.swapCandidate) {
+                this.swapPositions(chartId, this.swapCandidate);
+                this.clearSwapHighlight();
+                this.swapCandidate = null;
+            } else {
+                const hasCollision = this.checkCollision(currentX, currentY, width, height, chartId);
                 
-                if (this.chartPositions.has(chartId)) {
-                    this.chartPositions.set(chartId, {
-                        ...this.chartPositions.get(chartId),
-                        x: result.x,
-                        y: result.y
-                    });
+                if (!hasCollision) {
+                    if (this.chartPositions.has(chartId)) {
+                        this.chartPositions.set(chartId, {
+                            ...this.chartPositions.get(chartId),
+                            x: currentX,
+                            y: currentY
+                        });
+                    }
                 }
-            } else if (pos) {
-                this.draggedElement.style.left = `${pos.x}px`;
-                this.draggedElement.style.top = `${pos.y}px`;
             }
             
             this.isDragging = false;
