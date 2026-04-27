@@ -4,14 +4,13 @@ class DashboardManager {
         this.chartIdCounter = 0;
         this.currentEditingChart = null;
         this.theme = 'dark';
-        this.isDragging = false;
         this.isResizing = false;
-        this.draggedElement = null;
         this.resizeElement = null;
         this.resizeStartX = 0;
         this.resizeStartY = 0;
         this.resizeStartWidth = 0;
         this.resizeStartHeight = 0;
+        this.draggedChartCard = null;
         
         this.themeColors = {
             dark: {
@@ -75,6 +74,13 @@ class DashboardManager {
         
         document.addEventListener('mouseup', (e) => this.handleMouseUp(e));
         document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+        
+        const container = document.getElementById('dashboardContainer');
+        if (container) {
+            container.addEventListener('dragover', (e) => this.handleDragOver(e));
+            container.addEventListener('drop', (e) => this.handleDrop(e));
+            container.addEventListener('dragleave', (e) => this.handleDragLeave(e));
+        }
     }
     
     createInitialCharts() {
@@ -102,6 +108,7 @@ class DashboardManager {
         chartCard.className = 'chart-card';
         chartCard.dataset.chartId = chartId;
         chartCard.dataset.chartType = actualType;
+        chartCard.draggable = true;
         
         chartCard.innerHTML = `
             <div class="chart-header">
@@ -145,12 +152,36 @@ class DashboardManager {
             });
         }
         
-        if (dragBtn) {
-            dragBtn.addEventListener('mousedown', (e) => {
-                e.stopPropagation();
-                this.startDrag(e, chartCard);
-            });
-        }
+        chartCard.addEventListener('dragstart', (e) => {
+            this.draggedChartCard = chartCard;
+            chartCard.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', chartCard.dataset.chartId);
+        });
+        
+        chartCard.addEventListener('dragend', (e) => {
+            chartCard.classList.remove('dragging');
+            this.draggedChartCard = null;
+            const container = document.getElementById('dashboardContainer');
+            const placeholders = container.querySelectorAll('.drag-placeholder');
+            placeholders.forEach(p => p.remove());
+        });
+        
+        chartCard.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            
+            if (chartCard === this.draggedChartCard) return;
+            
+            this.insertDragPlaceholder(chartCard, e);
+        });
+        
+        chartCard.addEventListener('dragleave', (e) => {
+            if (!e.relatedTarget || !e.relatedTarget.closest('.chart-card')) {
+                const placeholders = document.querySelectorAll('.drag-placeholder');
+                placeholders.forEach(p => p.remove());
+            }
+        });
         
         if (resizeHandle) {
             resizeHandle.addEventListener('mousedown', (e) => {
@@ -460,21 +491,65 @@ class DashboardManager {
         });
     }
     
-    startDrag(e, chartCard) {
-        this.isDragging = true;
-        this.draggedElement = chartCard;
-        chartCard.classList.add('dragging');
-        
-        const rect = chartCard.getBoundingClientRect();
+    insertDragPlaceholder(targetCard, e) {
         const container = document.getElementById('dashboardContainer');
-        const containerRect = container.getBoundingClientRect();
+        const rect = targetCard.getBoundingClientRect();
+        const midY = rect.top + rect.height / 2;
+        const midX = rect.left + rect.width / 2;
         
-        this.dragOffsetX = e.clientX - rect.left;
-        this.dragOffsetY = e.clientY - rect.top;
-        this.originalPosition = {
-            left: rect.left - containerRect.left,
-            top: rect.top - containerRect.top
-        };
+        let placeholder = container.querySelector('.drag-placeholder');
+        
+        if (!placeholder) {
+            placeholder = document.createElement('div');
+            placeholder.className = 'drag-placeholder';
+            placeholder.style.width = targetCard.offsetWidth + 'px';
+            placeholder.style.height = targetCard.offsetHeight + 'px';
+        }
+        
+        const isAfter = e.clientY > midY || (e.clientY <= midY && e.clientX > midX);
+        
+        if (isAfter) {
+            if (targetCard.nextSibling && targetCard.nextSibling.classList.contains('drag-placeholder')) {
+                return;
+            }
+            targetCard.parentNode.insertBefore(placeholder, targetCard.nextSibling);
+        } else {
+            if (targetCard.previousSibling && targetCard.previousSibling.classList.contains('drag-placeholder')) {
+                return;
+            }
+            targetCard.parentNode.insertBefore(placeholder, targetCard);
+        }
+    }
+    
+    handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    }
+    
+    handleDrop(e) {
+        e.preventDefault();
+        
+        if (!this.draggedChartCard) return;
+        
+        const placeholder = document.querySelector('.drag-placeholder');
+        
+        if (placeholder && placeholder.parentNode) {
+            placeholder.parentNode.insertBefore(this.draggedChartCard, placeholder);
+            placeholder.remove();
+        }
+        
+        this.charts.forEach((chartData, chartId) => {
+            if (chartData.chart) {
+                chartData.chart.resize();
+            }
+        });
+    }
+    
+    handleDragLeave(e) {
+        if (!e.relatedTarget || !e.relatedTarget.closest('.dashboard-container')) {
+            const placeholders = document.querySelectorAll('.drag-placeholder');
+            placeholders.forEach(p => p.remove());
+        }
     }
     
     startResize(e, chartCard) {
@@ -487,22 +562,6 @@ class DashboardManager {
     }
     
     handleMouseMove(e) {
-        if (this.isDragging && this.draggedElement) {
-            const container = document.getElementById('dashboardContainer');
-            const containerRect = container.getBoundingClientRect();
-            
-            let newX = e.clientX - containerRect.left - this.dragOffsetX;
-            let newY = e.clientY - containerRect.top - this.dragOffsetY;
-            
-            newX = Math.max(0, Math.min(newX, containerRect.width - this.draggedElement.offsetWidth));
-            newY = Math.max(0, Math.min(newY, containerRect.height - this.draggedElement.offsetHeight));
-            
-            this.draggedElement.style.position = 'absolute';
-            this.draggedElement.style.left = `${newX}px`;
-            this.draggedElement.style.top = `${newY}px`;
-            this.draggedElement.style.zIndex = '10';
-        }
-        
         if (this.isResizing && this.resizeElement) {
             const deltaX = e.clientX - this.resizeStartX;
             const deltaY = e.clientY - this.resizeStartY;
@@ -522,13 +581,6 @@ class DashboardManager {
     }
     
     handleMouseUp(e) {
-        if (this.isDragging && this.draggedElement) {
-            this.isDragging = false;
-            this.draggedElement.classList.remove('dragging');
-            this.draggedElement.style.zIndex = '';
-            this.draggedElement = null;
-        }
-        
         if (this.isResizing) {
             this.isResizing = false;
             this.resizeElement = null;
@@ -680,70 +732,100 @@ class DashboardManager {
     }
     
     async exportAsPng() {
-        const chartsArray = Array.from(this.charts.values());
+        const container = document.getElementById('dashboardContainer');
+        const chartCards = container.querySelectorAll('.chart-card');
         
-        if (chartsArray.length === 0) {
+        if (chartCards.length === 0) {
             alert('没有可导出的图表');
             return;
         }
         
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        
+        const scale = 2;
+        const headerHeight = 80;
         const padding = 20;
-        const gap = 20;
-        const cols = Math.ceil(Math.sqrt(chartsArray.length));
-        const chartWidth = 400;
-        const chartHeight = 300;
-        const totalWidth = cols * chartWidth + (cols - 1) * gap + 2 * padding;
-        const rows = Math.ceil(chartsArray.length / cols);
-        const totalHeight = rows * chartHeight + (rows - 1) * gap + 2 * padding + 50;
         
-        canvas.width = totalWidth;
-        canvas.height = totalHeight;
+        const containerRect = container.getBoundingClientRect();
+        const totalWidth = Math.ceil(containerRect.width) + 2 * padding;
+        const totalHeight = Math.ceil(containerRect.height) + headerHeight + 2 * padding;
+        
+        canvas.width = totalWidth * scale;
+        canvas.height = totalHeight * scale;
+        ctx.scale(scale, scale);
         
         ctx.fillStyle = this.theme === 'dark' ? '#1a1a2e' : '#f8fafc';
         ctx.fillRect(0, 0, totalWidth, totalHeight);
         
+        ctx.fillStyle = this.theme === 'dark' ? '#16213e' : '#ffffff';
+        ctx.fillRect(0, 0, totalWidth, headerHeight);
+        
+        ctx.strokeStyle = this.theme === 'dark' ? '#2a2a4a' : '#e2e8f0';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, headerHeight);
+        ctx.lineTo(totalWidth, headerHeight);
+        ctx.stroke();
+        
         ctx.fillStyle = this.theme === 'dark' ? '#e0e0e0' : '#1e293b';
         ctx.font = 'bold 20px -apple-system, BlinkMacSystemFont, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('数据可视化仪表板 - ' + new Date().toLocaleString('zh-CN'), totalWidth / 2, 35);
+        ctx.fillText('数据可视化仪表板', totalWidth / 2, 45);
         
-        for (let i = 0; i < chartsArray.length; i++) {
-            const chartData = chartsArray[i];
+        ctx.font = '12px -apple-system, BlinkMacSystemFont, sans-serif';
+        ctx.fillStyle = this.theme === 'dark' ? '#a0a0a0' : '#64748b';
+        ctx.fillText('导出时间: ' + new Date().toLocaleString('zh-CN'), totalWidth / 2, 65);
+        
+        const bgColor = this.theme === 'dark' ? '#0f0f23' : '#ffffff';
+        const borderColor = this.theme === 'dark' ? '#2a2a4a' : '#e2e8f0';
+        const textColor = this.theme === 'dark' ? '#e0e0e0' : '#1e293b';
+        const titleColor = this.theme === 'dark' ? '#e0e0e0' : '#1e293b';
+        
+        chartCards.forEach((chartCard, index) => {
+            const rect = chartCard.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+            
+            const x = rect.left - containerRect.left + padding;
+            const y = rect.top - containerRect.top + headerHeight + padding;
+            const width = rect.width;
+            const height = rect.height;
+            
+            const chartId = chartCard.dataset.chartId;
+            const chartData = this.charts.get(chartId);
+            
+            if (!chartData) return;
+            
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(x, y, width, height);
+            
+            ctx.strokeStyle = borderColor;
+            ctx.lineWidth = 1;
+            ctx.strokeRect(x, y, width, height);
+            
+            const headerHeightCard = 50;
+            ctx.fillStyle = titleColor;
+            ctx.font = 'bold 16px -apple-system, BlinkMacSystemFont, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(chartData.title, x + 20, y + 30);
+            
             const chartCanvas = chartData.chart.canvas;
+            const chartContainer = chartCard.querySelector('.chart-container');
+            const chartContainerRect = chartContainer.getBoundingClientRect();
             
-            const col = i % cols;
-            const row = Math.floor(i / cols);
-            const x = padding + col * (chartWidth + gap);
-            const y = 50 + padding + row * (chartHeight + gap);
+            const chartX = x + (chartContainerRect.left - rect.left);
+            const chartY = y + (chartContainerRect.top - rect.top);
+            const chartWidth = chartContainerRect.width;
+            const chartHeight = chartContainerRect.height;
             
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = chartWidth;
-            tempCanvas.height = chartHeight;
-            const tempCtx = tempCanvas.getContext('2d');
+            const scaleX = chartWidth / chartCanvas.width;
+            const scaleY = chartHeight / chartCanvas.height;
             
-            tempCtx.fillStyle = this.theme === 'dark' ? '#0f0f23' : '#ffffff';
-            tempCtx.fillRect(0, 0, chartWidth, chartHeight);
-            
-            const scale = Math.min(chartWidth / chartCanvas.width, chartHeight / chartCanvas.height);
-            const offsetX = (chartWidth - chartCanvas.width * scale) / 2;
-            const offsetY = (chartHeight - chartCanvas.height * scale) / 2;
-            
-            tempCtx.save();
-            tempCtx.translate(offsetX, offsetY);
-            tempCtx.scale(scale, scale);
-            tempCtx.drawImage(chartCanvas, 0, 0);
-            tempCtx.restore();
-            
-            tempCtx.fillStyle = this.theme === 'dark' ? '#e0e0e0' : '#1e293b';
-            tempCtx.font = 'bold 14px -apple-system, BlinkMacSystemFont, sans-serif';
-            tempCtx.textAlign = 'left';
-            tempCtx.fillText(chartData.title, 10, 25);
-            
-            ctx.drawImage(tempCanvas, x, y);
-        }
+            ctx.save();
+            ctx.translate(chartX, chartY);
+            ctx.scale(scaleX, scaleY);
+            ctx.drawImage(chartCanvas, 0, 0);
+            ctx.restore();
+        });
         
         const link = document.createElement('a');
         link.download = `dashboard-${Date.now()}.png`;
