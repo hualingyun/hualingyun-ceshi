@@ -4,13 +4,20 @@ class DashboardManager {
         this.chartIdCounter = 0;
         this.currentEditingChart = null;
         this.theme = 'dark';
+        
+        this.isDragging = false;
         this.isResizing = false;
+        this.draggedElement = null;
         this.resizeElement = null;
+        
+        this.dragOffsetX = 0;
+        this.dragOffsetY = 0;
         this.resizeStartX = 0;
         this.resizeStartY = 0;
         this.resizeStartWidth = 0;
         this.resizeStartHeight = 0;
-        this.draggedChartCard = null;
+        
+        this.chartPositions = new Map();
         
         this.themeColors = {
             dark: {
@@ -74,13 +81,6 @@ class DashboardManager {
         
         document.addEventListener('mouseup', (e) => this.handleMouseUp(e));
         document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
-        
-        const container = document.getElementById('dashboardContainer');
-        if (container) {
-            container.addEventListener('dragover', (e) => this.handleDragOver(e));
-            container.addEventListener('drop', (e) => this.handleDrop(e));
-            container.addEventListener('dragleave', (e) => this.handleDragLeave(e));
-        }
     }
     
     createInitialCharts() {
@@ -90,7 +90,7 @@ class DashboardManager {
         this.addChart('radar', '服务性能指标');
     }
     
-    addChart(type = 'line', title = null) {
+    addChart(type = 'line', title = null, position = null) {
         const chartId = `chart-${this.chartIdCounter++}`;
         const chartTypes = ['line', 'bar', 'pie', 'radar'];
         const actualType = chartTypes.includes(type) ? type : 'line';
@@ -108,7 +108,6 @@ class DashboardManager {
         chartCard.className = 'chart-card';
         chartCard.dataset.chartId = chartId;
         chartCard.dataset.chartType = actualType;
-        chartCard.draggable = true;
         
         chartCard.innerHTML = `
             <div class="chart-header">
@@ -116,9 +115,6 @@ class DashboardManager {
                 <div class="chart-actions">
                     <button class="chart-action-btn" title="配置" data-action="config">
                         ⚙️
-                    </button>
-                    <button class="chart-action-btn" title="拖拽" data-action="drag">
-                        📌
                     </button>
                 </div>
             </div>
@@ -134,15 +130,149 @@ class DashboardManager {
         }
         container.appendChild(chartCard);
         
+        const assignedPosition = this.assignChartPosition(chartCard, position);
+        this.chartPositions.set(chartId, {
+            x: assignedPosition.x,
+            y: assignedPosition.y,
+            width: 400,
+            height: 380
+        });
+        
+        chartCard.style.left = `${assignedPosition.x}px`;
+        chartCard.style.top = `${assignedPosition.y}px`;
+        
         this.setupChartInteractions(chartCard);
         this.initializeChart(chartId, actualType, actualTitle);
         
         return chartId;
     }
     
+    assignChartPosition(chartCard, preferredPosition = null) {
+        const container = document.getElementById('dashboardContainer');
+        const containerRect = container.getBoundingClientRect();
+        const defaultWidth = 400;
+        const defaultHeight = 380;
+        const gap = 20;
+        
+        if (preferredPosition) {
+            if (!this.checkCollision(
+                preferredPosition.x, preferredPosition.y,
+                defaultWidth, defaultHeight,
+                chartCard.dataset.chartId
+            )) {
+                return preferredPosition;
+            }
+        }
+        
+        const existingPositions = [];
+        this.chartPositions.forEach((pos, id) => {
+            if (id !== chartCard.dataset.chartId) {
+                existingPositions.push(pos);
+            }
+        });
+        
+        const containerPadding = 32;
+        const cols = Math.floor((containerRect.width - 2 * containerPadding + gap) / (defaultWidth + gap));
+        const actualCols = Math.max(1, cols);
+        
+        let position = null;
+        let row = 0;
+        let col = 0;
+        
+        while (!position) {
+            const x = containerPadding + col * (defaultWidth + gap);
+            const y = containerPadding + row * (defaultHeight + gap);
+            
+            if (!this.checkCollision(x, y, defaultWidth, defaultHeight, chartCard.dataset.chartId)) {
+                position = { x, y };
+            }
+            
+            col++;
+            if (col >= actualCols) {
+                col = 0;
+                row++;
+            }
+            
+            if (row > 100) {
+                position = {
+                    x: containerPadding + Math.random() * 200,
+                    y: containerPadding + Math.random() * 200
+                };
+            }
+        }
+        
+        return position;
+    }
+    
+    checkCollision(x, y, width, height, excludeChartId = null) {
+        for (const [chartId, pos] of this.chartPositions.entries()) {
+            if (chartId === excludeChartId) continue;
+            
+            if (this.doRectsIntersect(
+                x, y, width, height,
+                pos.x, pos.y, pos.width, pos.height
+            )) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    doRectsIntersect(x1, y1, w1, h1, x2, y2, w2, h2) {
+        const gap = 10;
+        return !(
+            x1 + w1 + gap <= x2 ||
+            x2 + w2 + gap <= x1 ||
+            y1 + h1 + gap <= y2 ||
+            y2 + h2 + gap <= y1
+        );
+    }
+    
+    findNonOverlappingPosition(currentX, currentY, width, height, chartId) {
+        const container = document.getElementById('dashboardContainer');
+        const containerRect = container.getBoundingClientRect();
+        const containerPadding = 32;
+        
+        const directions = [
+            { dx: 0, dy: -50 },
+            { dx: 50, dy: 0 },
+            { dx: 0, dy: 50 },
+            { dx: -50, dy: 0 },
+            { dx: 50, dy: 50 },
+            { dx: -50, dy: 50 },
+            { dx: 50, dy: -50 },
+            { dx: -50, dy: -50 }
+        ];
+        
+        let maxX = containerRect.width - width - containerPadding;
+        let maxY = containerRect.height - height - containerPadding;
+        
+        let newX = Math.max(containerPadding, Math.min(currentX, maxX));
+        let newY = Math.max(containerPadding, Math.min(currentY, maxY));
+        
+        if (!this.checkCollision(newX, newY, width, height, chartId)) {
+            return { x: newX, y: newY, valid: true };
+        }
+        
+        for (let i = 0; i < 20; i++) {
+            for (const dir of directions) {
+                const testX = newX + dir.dx * (i + 1);
+                const testY = newY + dir.dy * (i + 1);
+                
+                const clampedX = Math.max(containerPadding, Math.min(testX, maxX));
+                const clampedY = Math.max(containerPadding, Math.min(testY, maxY));
+                
+                if (!this.checkCollision(clampedX, clampedY, width, height, chartId)) {
+                    return { x: clampedX, y: clampedY, valid: true };
+                }
+            }
+        }
+        
+        return { x: currentX, y: currentY, valid: false };
+    }
+    
     setupChartInteractions(chartCard) {
         const configBtn = chartCard.querySelector('[data-action="config"]');
-        const dragBtn = chartCard.querySelector('[data-action="drag"]');
         const resizeHandle = chartCard.querySelector('.resize-handle');
         
         if (configBtn) {
@@ -152,35 +282,15 @@ class DashboardManager {
             });
         }
         
-        chartCard.addEventListener('dragstart', (e) => {
-            this.draggedChartCard = chartCard;
-            chartCard.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', chartCard.dataset.chartId);
-        });
-        
-        chartCard.addEventListener('dragend', (e) => {
-            chartCard.classList.remove('dragging');
-            this.draggedChartCard = null;
-            const container = document.getElementById('dashboardContainer');
-            const placeholders = container.querySelectorAll('.drag-placeholder');
-            placeholders.forEach(p => p.remove());
-        });
-        
-        chartCard.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            
-            if (chartCard === this.draggedChartCard) return;
-            
-            this.insertDragPlaceholder(chartCard, e);
-        });
-        
-        chartCard.addEventListener('dragleave', (e) => {
-            if (!e.relatedTarget || !e.relatedTarget.closest('.chart-card')) {
-                const placeholders = document.querySelectorAll('.drag-placeholder');
-                placeholders.forEach(p => p.remove());
+        chartCard.addEventListener('mousedown', (e) => {
+            if (e.target === resizeHandle || e.target.closest('.resize-handle')) {
+                return;
             }
+            if (e.target === configBtn || e.target.closest('.chart-action-btn')) {
+                return;
+            }
+            
+            this.startDrag(e, chartCard);
         });
         
         if (resizeHandle) {
@@ -188,6 +298,178 @@ class DashboardManager {
                 e.stopPropagation();
                 this.startResize(e, chartCard);
             });
+        }
+    }
+    
+    startDrag(e, chartCard) {
+        this.isDragging = true;
+        this.draggedElement = chartCard;
+        chartCard.classList.add('dragging');
+        
+        const rect = chartCard.getBoundingClientRect();
+        const container = document.getElementById('dashboardContainer');
+        const containerRect = container.getBoundingClientRect();
+        
+        this.dragOffsetX = e.clientX - rect.left;
+        this.dragOffsetY = e.clientY - rect.top;
+    }
+    
+    startResize(e, chartCard) {
+        this.isResizing = true;
+        this.resizeElement = chartCard;
+        this.resizeStartX = e.clientX;
+        this.resizeStartY = e.clientY;
+        this.resizeStartWidth = chartCard.offsetWidth;
+        this.resizeStartHeight = chartCard.offsetHeight;
+        
+        const chartId = chartCard.dataset.chartId;
+        const pos = this.chartPositions.get(chartId);
+        if (pos) {
+            this.resizeStartWidth = pos.width;
+            this.resizeStartHeight = pos.height;
+        }
+    }
+    
+    handleMouseMove(e) {
+        if (this.isDragging && this.draggedElement) {
+            const container = document.getElementById('dashboardContainer');
+            const containerRect = container.getBoundingClientRect();
+            const chartId = this.draggedElement.dataset.chartId;
+            const pos = this.chartPositions.get(chartId);
+            
+            let newX = e.clientX - containerRect.left - this.dragOffsetX;
+            let newY = e.clientY - containerRect.top - this.dragOffsetY;
+            
+            const containerPadding = 32;
+            const maxX = containerRect.width - this.draggedElement.offsetWidth - containerPadding;
+            const maxY = containerRect.height - this.draggedElement.offsetHeight - containerPadding;
+            
+            newX = Math.max(containerPadding, Math.min(newX, maxX));
+            newY = Math.max(containerPadding, Math.min(newY, maxY));
+            
+            const width = pos ? pos.width : 400;
+            const height = pos ? pos.height : 380;
+            
+            const hasCollision = this.checkCollision(newX, newY, width, height, chartId);
+            
+            if (hasCollision) {
+                this.draggedElement.classList.add('collision-warning');
+            } else {
+                this.draggedElement.classList.remove('collision-warning');
+            }
+            
+            this.draggedElement.style.left = `${newX}px`;
+            this.draggedElement.style.top = `${newY}px`;
+        }
+        
+        if (this.isResizing && this.resizeElement) {
+            const deltaX = e.clientX - this.resizeStartX;
+            const deltaY = e.clientY - this.resizeStartY;
+            
+            const minWidth = 300;
+            const minHeight = 250;
+            
+            let newWidth = Math.max(minWidth, this.resizeStartWidth + deltaX);
+            let newHeight = Math.max(minHeight, this.resizeStartHeight + deltaY);
+            
+            const chartId = this.resizeElement.dataset.chartId;
+            const pos = this.chartPositions.get(chartId);
+            
+            if (pos) {
+                const hasCollision = this.checkCollision(
+                    pos.x, pos.y,
+                    newWidth, newHeight,
+                    chartId
+                );
+                
+                if (hasCollision) {
+                    this.resizeElement.classList.add('collision-warning');
+                } else {
+                    this.resizeElement.classList.remove('collision-warning');
+                }
+            }
+            
+            this.resizeElement.style.width = `${newWidth}px`;
+            this.resizeElement.style.height = `${newHeight}px`;
+            
+            const chartData = this.charts.get(chartId);
+            if (chartData && chartData.chart) {
+                chartData.chart.resize();
+            }
+        }
+    }
+    
+    handleMouseUp(e) {
+        if (this.isDragging && this.draggedElement) {
+            const chartId = this.draggedElement.dataset.chartId;
+            const pos = this.chartPositions.get(chartId);
+            
+            const container = document.getElementById('dashboardContainer');
+            const containerRect = container.getBoundingClientRect();
+            const currentX = parseFloat(this.draggedElement.style.left) || 0;
+            const currentY = parseFloat(this.draggedElement.style.top) || 0;
+            
+            const width = pos ? pos.width : 400;
+            const height = pos ? pos.height : 380;
+            
+            const result = this.findNonOverlappingPosition(currentX, currentY, width, height, chartId);
+            
+            if (result.valid) {
+                this.draggedElement.style.left = `${result.x}px`;
+                this.draggedElement.style.top = `${result.y}px`;
+                
+                if (this.chartPositions.has(chartId)) {
+                    this.chartPositions.set(chartId, {
+                        ...this.chartPositions.get(chartId),
+                        x: result.x,
+                        y: result.y
+                    });
+                }
+            } else if (pos) {
+                this.draggedElement.style.left = `${pos.x}px`;
+                this.draggedElement.style.top = `${pos.y}px`;
+            }
+            
+            this.isDragging = false;
+            this.draggedElement.classList.remove('dragging');
+            this.draggedElement.classList.remove('collision-warning');
+            this.draggedElement = null;
+        }
+        
+        if (this.isResizing && this.resizeElement) {
+            const chartId = this.resizeElement.dataset.chartId;
+            const pos = this.chartPositions.get(chartId);
+            
+            const currentWidth = this.resizeElement.offsetWidth;
+            const currentHeight = this.resizeElement.offsetHeight;
+            
+            if (pos) {
+                const hasCollision = this.checkCollision(
+                    pos.x, pos.y,
+                    currentWidth, currentHeight,
+                    chartId
+                );
+                
+                if (!hasCollision) {
+                    this.chartPositions.set(chartId, {
+                        ...pos,
+                        width: currentWidth,
+                        height: currentHeight
+                    });
+                } else {
+                    this.resizeElement.style.width = `${pos.width}px`;
+                    this.resizeElement.style.height = `${pos.height}px`;
+                    
+                    const chartData = this.charts.get(chartId);
+                    if (chartData && chartData.chart) {
+                        chartData.chart.resize();
+                    }
+                }
+            }
+            
+            this.isResizing = false;
+            this.resizeElement.classList.remove('collision-warning');
+            this.resizeElement = null;
         }
     }
     
@@ -491,102 +773,6 @@ class DashboardManager {
         });
     }
     
-    insertDragPlaceholder(targetCard, e) {
-        const container = document.getElementById('dashboardContainer');
-        const rect = targetCard.getBoundingClientRect();
-        const midY = rect.top + rect.height / 2;
-        const midX = rect.left + rect.width / 2;
-        
-        let placeholder = container.querySelector('.drag-placeholder');
-        
-        if (!placeholder) {
-            placeholder = document.createElement('div');
-            placeholder.className = 'drag-placeholder';
-            placeholder.style.width = targetCard.offsetWidth + 'px';
-            placeholder.style.height = targetCard.offsetHeight + 'px';
-        }
-        
-        const isAfter = e.clientY > midY || (e.clientY <= midY && e.clientX > midX);
-        
-        if (isAfter) {
-            if (targetCard.nextSibling && targetCard.nextSibling.classList.contains('drag-placeholder')) {
-                return;
-            }
-            targetCard.parentNode.insertBefore(placeholder, targetCard.nextSibling);
-        } else {
-            if (targetCard.previousSibling && targetCard.previousSibling.classList.contains('drag-placeholder')) {
-                return;
-            }
-            targetCard.parentNode.insertBefore(placeholder, targetCard);
-        }
-    }
-    
-    handleDragOver(e) {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-    }
-    
-    handleDrop(e) {
-        e.preventDefault();
-        
-        if (!this.draggedChartCard) return;
-        
-        const placeholder = document.querySelector('.drag-placeholder');
-        
-        if (placeholder && placeholder.parentNode) {
-            placeholder.parentNode.insertBefore(this.draggedChartCard, placeholder);
-            placeholder.remove();
-        }
-        
-        this.charts.forEach((chartData, chartId) => {
-            if (chartData.chart) {
-                chartData.chart.resize();
-            }
-        });
-    }
-    
-    handleDragLeave(e) {
-        if (!e.relatedTarget || !e.relatedTarget.closest('.dashboard-container')) {
-            const placeholders = document.querySelectorAll('.drag-placeholder');
-            placeholders.forEach(p => p.remove());
-        }
-    }
-    
-    startResize(e, chartCard) {
-        this.isResizing = true;
-        this.resizeElement = chartCard;
-        this.resizeStartX = e.clientX;
-        this.resizeStartY = e.clientY;
-        this.resizeStartWidth = chartCard.offsetWidth;
-        this.resizeStartHeight = chartCard.offsetHeight;
-    }
-    
-    handleMouseMove(e) {
-        if (this.isResizing && this.resizeElement) {
-            const deltaX = e.clientX - this.resizeStartX;
-            const deltaY = e.clientY - this.resizeStartY;
-            
-            const newWidth = Math.max(300, this.resizeStartWidth + deltaX);
-            const newHeight = Math.max(250, this.resizeStartHeight + deltaY);
-            
-            this.resizeElement.style.width = `${newWidth}px`;
-            this.resizeElement.style.height = `${newHeight}px`;
-            
-            const chartId = this.resizeElement.dataset.chartId;
-            const chartData = this.charts.get(chartId);
-            if (chartData && chartData.chart) {
-                chartData.chart.resize();
-            }
-        }
-    }
-    
-    handleMouseUp(e) {
-        if (this.isResizing) {
-            this.isResizing = false;
-            this.resizeElement = null;
-        }
-    }
-    
     openConfigPanel(chartCard) {
         this.currentEditingChart = chartCard;
         const chartId = chartCard.dataset.chartId;
@@ -710,6 +896,7 @@ class DashboardManager {
                 chartData.chart.destroy();
             }
             this.charts.delete(chartId);
+            this.chartPositions.delete(chartId);
         }
         
         this.currentEditingChart.remove();
@@ -746,9 +933,28 @@ class DashboardManager {
         const headerHeight = 80;
         const padding = 20;
         
-        const containerRect = container.getBoundingClientRect();
-        const totalWidth = Math.ceil(containerRect.width) + 2 * padding;
-        const totalHeight = Math.ceil(containerRect.height) + headerHeight + 2 * padding;
+        let minX = Infinity;
+        let minY = Infinity;
+        let maxX = 0;
+        let maxY = 0;
+        
+        chartCards.forEach((chartCard) => {
+            const chartId = chartCard.dataset.chartId;
+            const pos = this.chartPositions.get(chartId);
+            
+            if (pos) {
+                minX = Math.min(minX, pos.x);
+                minY = Math.min(minY, pos.y);
+                maxX = Math.max(maxX, pos.x + pos.width);
+                maxY = Math.max(maxY, pos.y + pos.height);
+            }
+        });
+        
+        const contentWidth = maxX - minX;
+        const contentHeight = maxY - minY;
+        
+        const totalWidth = Math.max(contentWidth + 2 * padding, 800);
+        const totalHeight = contentHeight + headerHeight + 2 * padding;
         
         canvas.width = totalWidth * scale;
         canvas.height = totalHeight * scale;
@@ -778,22 +984,22 @@ class DashboardManager {
         
         const bgColor = this.theme === 'dark' ? '#0f0f23' : '#ffffff';
         const borderColor = this.theme === 'dark' ? '#2a2a4a' : '#e2e8f0';
-        const textColor = this.theme === 'dark' ? '#e0e0e0' : '#1e293b';
         const titleColor = this.theme === 'dark' ? '#e0e0e0' : '#1e293b';
         
-        chartCards.forEach((chartCard, index) => {
-            const rect = chartCard.getBoundingClientRect();
-            const containerRect = container.getBoundingClientRect();
-            
-            const x = rect.left - containerRect.left + padding;
-            const y = rect.top - containerRect.top + headerHeight + padding;
-            const width = rect.width;
-            const height = rect.height;
-            
+        const offsetX = padding - minX;
+        const offsetY = headerHeight + padding - minY;
+        
+        chartCards.forEach((chartCard) => {
             const chartId = chartCard.dataset.chartId;
             const chartData = this.charts.get(chartId);
+            const pos = this.chartPositions.get(chartId);
             
-            if (!chartData) return;
+            if (!chartData || !pos) return;
+            
+            const x = pos.x + offsetX;
+            const y = pos.y + offsetY;
+            const width = pos.width;
+            const height = pos.height;
             
             ctx.fillStyle = bgColor;
             ctx.fillRect(x, y, width, height);
@@ -802,7 +1008,6 @@ class DashboardManager {
             ctx.lineWidth = 1;
             ctx.strokeRect(x, y, width, height);
             
-            const headerHeightCard = 50;
             ctx.fillStyle = titleColor;
             ctx.font = 'bold 16px -apple-system, BlinkMacSystemFont, sans-serif';
             ctx.textAlign = 'left';
@@ -811,9 +1016,10 @@ class DashboardManager {
             const chartCanvas = chartData.chart.canvas;
             const chartContainer = chartCard.querySelector('.chart-container');
             const chartContainerRect = chartContainer.getBoundingClientRect();
+            const cardRect = chartCard.getBoundingClientRect();
             
-            const chartX = x + (chartContainerRect.left - rect.left);
-            const chartY = y + (chartContainerRect.top - rect.top);
+            const chartX = x + (chartContainerRect.left - cardRect.left);
+            const chartY = y + (chartContainerRect.top - cardRect.top);
             const chartWidth = chartContainerRect.width;
             const chartHeight = chartContainerRect.height;
             

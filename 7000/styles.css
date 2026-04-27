@@ -186,10 +186,9 @@ input:checked + .slider:before {
 
 .dashboard-container {
     padding: 2rem;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-    gap: 1.5rem;
+    position: relative;
     min-height: calc(100vh - 80px);
+    overflow: auto;
 }
 
 .chart-card {
@@ -198,30 +197,32 @@ input:checked + .slider:before {
     border-radius: 1rem;
     padding: 1.5rem;
     box-shadow: var(--shadow);
-    position: relative;
-    transition: all 0.3s ease;
-    min-height: 350px;
+    position: absolute;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+    width: 400px;
+    height: 380px;
     display: flex;
     flex-direction: column;
+    cursor: move;
+    z-index: 1;
 }
 
 .chart-card:hover {
     border-color: var(--accent-color);
-    transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    z-index: 10;
 }
 
 .chart-card.dragging {
-    opacity: 0.5;
+    opacity: 0.7;
     cursor: grabbing;
+    z-index: 100;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
-.drag-placeholder {
-    background-color: var(--accent-color);
-    opacity: 0.3;
-    border: 2px dashed var(--accent-color);
-    border-radius: 1rem;
-    transition: all 0.2s ease;
+.chart-card.collision-warning {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
 }
 
 .chart-header {
@@ -387,7 +388,10 @@ input:checked + .slider:before {
     padding: 4rem 2rem;
     color: var(--text-secondary);
     text-align: center;
-    grid-column: 1 / -1;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .empty-state-icon {
@@ -426,8 +430,12 @@ input:checked + .slider:before {
     }
 
     .dashboard-container {
-        grid-template-columns: 1fr;
         padding: 1rem;
+    }
+
+    .chart-card {
+        width: 100% !important;
+        max-width: 350px;
     }
 
     .chart-config-panel {
