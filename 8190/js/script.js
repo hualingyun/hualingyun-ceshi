@@ -131,9 +131,7 @@ class ImageStyleConverter {
         });
         
         this.cropRatio.addEventListener('change', (e) => {
-            if (e.target.value !== 'free') {
-                this.startCropMode();
-            }
+            this.startCropMode();
         });
         
         this.cropBtn.addEventListener('click', () => {
@@ -369,9 +367,20 @@ class ImageStyleConverter {
 
     updateCropBox() {
         const canvasRect = this.editorCanvas.getBoundingClientRect();
+        const containerRect = this.editorCanvas.parentElement.getBoundingClientRect();
+        
+        const offsetLeft = canvasRect.left - containerRect.left;
+        const offsetTop = canvasRect.top - containerRect.top;
+        
         const scaleX = canvasRect.width / this.editorCanvas.width;
         const scaleY = canvasRect.height / this.editorCanvas.height;
         
+        this.cropOverlay.style.left = offsetLeft + 'px';
+        this.cropOverlay.style.top = offsetTop + 'px';
+        this.cropOverlay.style.width = canvasRect.width + 'px';
+        this.cropOverlay.style.height = canvasRect.height + 'px';
+        
+        this.cropBoxEl.style.position = 'absolute';
         this.cropBoxEl.style.left = (this.cropBox.x * scaleX) + 'px';
         this.cropBoxEl.style.top = (this.cropBox.y * scaleY) + 'px';
         this.cropBoxEl.style.width = (this.cropBox.width * scaleX) + 'px';
@@ -384,6 +393,14 @@ class ImageStyleConverter {
         let resizeCorner = null;
         let startClientX, startClientY;
         let startBoxX, startBoxY, startBoxWidth, startBoxHeight;
+        
+        const getScale = () => {
+            const canvasRect = this.editorCanvas.getBoundingClientRect();
+            return {
+                scaleX: this.editorCanvas.width / canvasRect.width,
+                scaleY: this.editorCanvas.height / canvasRect.height
+            };
+        };
         
         this.cropBoxEl.addEventListener('mousedown', (e) => {
             if (e.target.classList.contains('corner')) {
@@ -404,12 +421,10 @@ class ImageStyleConverter {
             e.stopPropagation();
         });
         
-        document.addEventListener('mousemove', (e) => {
+        const handleMouseMove = (e) => {
             if (!isDragging && !isResizing) return;
             
-            const canvasRect = this.editorCanvas.getBoundingClientRect();
-            const scaleX = this.editorCanvas.width / canvasRect.width;
-            const scaleY = this.editorCanvas.height / canvasRect.height;
+            const { scaleX, scaleY } = getScale();
             
             const deltaClientX = e.clientX - startClientX;
             const deltaClientY = e.clientY - startClientY;
@@ -483,13 +498,16 @@ class ImageStyleConverter {
             }
             
             this.updateCropBox();
-        });
+        };
         
-        document.addEventListener('mouseup', () => {
+        const handleMouseUp = () => {
             isDragging = false;
             isResizing = false;
             resizeCorner = null;
-        });
+        };
+        
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
     }
 
     applyCrop() {
@@ -538,13 +556,26 @@ class ImageStyleConverter {
         this.loading.classList.remove('hidden');
         this.convertBtn.disabled = true;
         
-        setTimeout(() => {
+        try {
             this.applyStyleEffect();
+        } catch (error) {
+            console.error('风格转换出错:', error);
             this.loading.classList.add('hidden');
             this.convertBtn.disabled = false;
+            alert('风格转换失败：' + error.message);
+            return;
+        }
+        
+        this.loading.classList.add('hidden');
+        this.convertBtn.disabled = false;
+        
+        if (this.styledImage) {
+            this.setupComparison();
             this.compareSection.classList.remove('hidden');
             this.showCompareMode('slider');
-        }, 2000);
+        } else {
+            alert('风格转换失败，请重试或选择其他风格。');
+        }
     }
 
     applyStyleEffect() {
@@ -581,16 +612,25 @@ class ImageStyleConverter {
         ctx.putImageData(imageData, 0, 0);
         
         const styledImg = new Image();
-        styledImg.onload = () => {
-            this.styledImage = styledImg;
-            this.setupComparison();
-        };
         styledImg.src = canvas.toDataURL('image/png');
+        this.styledImage = styledImg;
     }
 
     applyImpressionismEffect(data, width, height) {
         const tempData = new Uint8ClampedArray(data);
-        const radius = 3;
+        let radius = 3;
+        
+        if (width <= 2 * radius + 1 || height <= 2 * radius + 1) {
+            radius = Math.min(1, Math.floor(Math.min(width, height) / 4));
+            if (radius < 1) {
+                for (let i = 0; i < data.length; i += 4) {
+                    data[i] = Math.min(255, data[i] * 1.1);
+                    data[i + 1] = Math.min(255, data[i + 1] * 1.1);
+                    data[i + 2] = Math.min(255, data[i + 2] * 1.05);
+                }
+                return;
+            }
+        }
         
         for (let y = radius; y < height - radius; y++) {
             for (let x = radius; x < width - radius; x++) {
@@ -606,10 +646,12 @@ class ImageStyleConverter {
                     }
                 }
                 
-                const idx = y * width + x;
-                data[idx * 4] = r / count;
-                data[idx * 4 + 1] = g / count;
-                data[idx * 4 + 2] = b / count;
+                if (count > 0) {
+                    const idx = y * width + x;
+                    data[idx * 4] = r / count;
+                    data[idx * 4 + 1] = g / count;
+                    data[idx * 4 + 2] = b / count;
+                }
             }
         }
         
@@ -636,8 +678,15 @@ class ImageStyleConverter {
 
     applyOilPaintingEffect(data, width, height) {
         const tempData = new Uint8ClampedArray(data);
-        const radius = 5;
+        let radius = 5;
         const intensityLevels = 24;
+        
+        if (width <= 2 * radius + 1 || height <= 2 * radius + 1) {
+            radius = Math.min(2, Math.floor(Math.min(width, height) / 4));
+            if (radius < 1) {
+                return;
+            }
+        }
         
         for (let y = radius; y < height - radius; y++) {
             for (let x = radius; x < width - radius; x++) {
@@ -650,7 +699,9 @@ class ImageStyleConverter {
                         const g = tempData[idx * 4 + 1];
                         const b = tempData[idx * 4 + 2];
                         
-                        const intensity = Math.floor((r + g + b) / 3 * intensityLevels / 255);
+                        let intensity = Math.floor((r + g + b) / 3 * intensityLevels / 255);
+                        intensity = Math.max(0, Math.min(intensity, intensityLevels - 1));
+                        
                         intensityBins[intensity].r += r;
                         intensityBins[intensity].g += g;
                         intensityBins[intensity].b += b;
@@ -668,16 +719,30 @@ class ImageStyleConverter {
                 }
                 
                 const idx = y * width + x;
-                data[idx * 4] = intensityBins[maxIdx].r / intensityBins[maxIdx].count;
-                data[idx * 4 + 1] = intensityBins[maxIdx].g / intensityBins[maxIdx].count;
-                data[idx * 4 + 2] = intensityBins[maxIdx].b / intensityBins[maxIdx].count;
+                if (intensityBins[maxIdx].count > 0) {
+                    data[idx * 4] = intensityBins[maxIdx].r / intensityBins[maxIdx].count;
+                    data[idx * 4 + 1] = intensityBins[maxIdx].g / intensityBins[maxIdx].count;
+                    data[idx * 4 + 2] = intensityBins[maxIdx].b / intensityBins[maxIdx].count;
+                }
             }
         }
     }
 
     applyWatercolorEffect(data, width, height) {
         const tempData = new Uint8ClampedArray(data);
-        const radius = 4;
+        let radius = 4;
+        
+        if (width <= 2 * radius + 1 || height <= 2 * radius + 1) {
+            radius = Math.min(1, Math.floor(Math.min(width, height) / 4));
+            if (radius < 1) {
+                for (let i = 0; i < data.length; i += 4) {
+                    data[i] = Math.min(255, data[i] * 1.2);
+                    data[i + 1] = Math.min(255, data[i + 1] * 1.15);
+                    data[i + 2] = Math.min(255, data[i + 2] * 1.1);
+                }
+                return;
+            }
+        }
         
         for (let y = radius; y < height - radius; y++) {
             for (let x = radius; x < width - radius; x++) {
@@ -720,29 +785,31 @@ class ImageStyleConverter {
             data[i + 2] = Math.floor(data[i + 2] / (256 / levels)) * (256 / levels);
         }
         
-        for (let y = 1; y < height - 1; y++) {
-            for (let x = 1; x < width - 1; x++) {
-                const idx = (y * width + x) * 4;
-                const idxTop = (y - 1) * width + x;
-                const idxLeft = y * width + (x - 1);
-                const idxRight = y * width + (x + 1);
-                const idxBottom = (y + 1) * width + x;
-                
-                const edgeThreshold = 30;
-                
-                const grayCurrent = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
-                const grayTop = (data[idxTop * 4] + data[idxTop * 4 + 1] + data[idxTop * 4 + 2]) / 3;
-                const grayLeft = (data[idxLeft * 4] + data[idxLeft * 4 + 1] + data[idxLeft * 4 + 2]) / 3;
-                const grayRight = (data[idxRight * 4] + data[idxRight * 4 + 1] + data[idxRight * 4 + 2]) / 3;
-                const grayBottom = (data[idxBottom * 4] + data[idxBottom * 4 + 1] + data[idxBottom * 4 + 2]) / 3;
-                
-                if (Math.abs(grayCurrent - grayTop) > edgeThreshold ||
-                    Math.abs(grayCurrent - grayLeft) > edgeThreshold ||
-                    Math.abs(grayCurrent - grayRight) > edgeThreshold ||
-                    Math.abs(grayCurrent - grayBottom) > edgeThreshold) {
-                    data[idx] = Math.max(0, data[idx] - 50);
-                    data[idx + 1] = Math.max(0, data[idx + 1] - 50);
-                    data[idx + 2] = Math.max(0, data[idx + 2] - 50);
+        if (width >= 3 && height >= 3) {
+            for (let y = 1; y < height - 1; y++) {
+                for (let x = 1; x < width - 1; x++) {
+                    const idx = (y * width + x) * 4;
+                    const idxTop = (y - 1) * width + x;
+                    const idxLeft = y * width + (x - 1);
+                    const idxRight = y * width + (x + 1);
+                    const idxBottom = (y + 1) * width + x;
+                    
+                    const edgeThreshold = 30;
+                    
+                    const grayCurrent = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
+                    const grayTop = (data[idxTop * 4] + data[idxTop * 4 + 1] + data[idxTop * 4 + 2]) / 3;
+                    const grayLeft = (data[idxLeft * 4] + data[idxLeft * 4 + 1] + data[idxLeft * 4 + 2]) / 3;
+                    const grayRight = (data[idxRight * 4] + data[idxRight * 4 + 1] + data[idxRight * 4 + 2]) / 3;
+                    const grayBottom = (data[idxBottom * 4] + data[idxBottom * 4 + 1] + data[idxBottom * 4 + 2]) / 3;
+                    
+                    if (Math.abs(grayCurrent - grayTop) > edgeThreshold ||
+                        Math.abs(grayCurrent - grayLeft) > edgeThreshold ||
+                        Math.abs(grayCurrent - grayRight) > edgeThreshold ||
+                        Math.abs(grayCurrent - grayBottom) > edgeThreshold) {
+                        data[idx] = Math.max(0, data[idx] - 50);
+                        data[idx + 1] = Math.max(0, data[idx + 1] - 50);
+                        data[idx + 2] = Math.max(0, data[idx + 2] - 50);
+                    }
                 }
             }
         }

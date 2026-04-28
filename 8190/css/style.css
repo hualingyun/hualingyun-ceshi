@@ -209,14 +209,12 @@ header p {
 
 .crop-overlay {
     position: absolute;
-    top: 20px;
-    left: 20px;
-    right: 20px;
-    bottom: 20px;
     background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    pointer-events: none;
+}
+
+.crop-overlay .crop-box {
+    pointer-events: auto;
 }
 
 .crop-box {
