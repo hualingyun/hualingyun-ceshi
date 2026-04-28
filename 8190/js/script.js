@@ -56,6 +56,10 @@ class ImageStyleConverter {
         this.cropBtn = document.getElementById('crop-btn');
         this.cropOverlay = document.getElementById('crop-overlay');
         this.cropBoxEl = document.getElementById('crop-box');
+        this.cornerTL = document.getElementById('corner-tl');
+        this.cornerTR = document.getElementById('corner-tr');
+        this.cornerBL = document.getElementById('corner-bl');
+        this.cornerBR = document.getElementById('corner-br');
         
         this.styleOptions = document.querySelectorAll('.style-option');
         this.convertBtn = document.getElementById('convert-btn');
@@ -115,13 +119,11 @@ class ImageStyleConverter {
         });
         
         this.rotateLeftBtn.addEventListener('click', () => {
-            this.editSettings.rotation = (this.editSettings.rotation - 90 + 360) % 360;
-            this.applyRotation();
+            this.rotateImage(-90);
         });
         
         this.rotateRightBtn.addEventListener('click', () => {
-            this.editSettings.rotation = (this.editSettings.rotation + 90) % 360;
-            this.applyRotation();
+            this.rotateImage(90);
         });
         
         this.resetEditsBtn.addEventListener('click', () => {
@@ -274,13 +276,13 @@ class ImageStyleConverter {
         filteredImg.src = canvas.toDataURL('image/png');
     }
 
-    applyRotation() {
+    rotateImage(degrees) {
         if (!this.currentImage) return;
         
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         
-        const isVertical = this.editSettings.rotation % 180 !== 0;
+        const isVertical = degrees % 180 !== 0;
         if (isVertical) {
             canvas.width = this.currentImage.height;
             canvas.height = this.currentImage.width;
@@ -290,7 +292,7 @@ class ImageStyleConverter {
         }
         
         ctx.translate(canvas.width / 2, canvas.height / 2);
-        ctx.rotate((this.editSettings.rotation * Math.PI) / 180);
+        ctx.rotate((degrees * Math.PI) / 180);
         ctx.drawImage(this.currentImage, -this.currentImage.width / 2, -this.currentImage.height / 2);
         
         const rotatedImg = new Image();
@@ -378,43 +380,115 @@ class ImageStyleConverter {
 
     initCropBoxInteraction() {
         let isDragging = false;
-        let startX, startY;
+        let isResizing = false;
+        let resizeCorner = null;
+        let startClientX, startClientY;
+        let startBoxX, startBoxY, startBoxWidth, startBoxHeight;
         
         this.cropBoxEl.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            const canvasRect = this.editorCanvas.getBoundingClientRect();
-            const scaleX = this.editorCanvas.width / canvasRect.width;
-            startX = e.clientX;
-            startY = e.clientY;
+            if (e.target.classList.contains('corner')) {
+                isResizing = true;
+                resizeCorner = e.target.id;
+            } else {
+                isDragging = true;
+            }
+            
+            startClientX = e.clientX;
+            startClientY = e.clientY;
+            startBoxX = this.cropBox.x;
+            startBoxY = this.cropBox.y;
+            startBoxWidth = this.cropBox.width;
+            startBoxHeight = this.cropBox.height;
+            
+            e.preventDefault();
+            e.stopPropagation();
         });
         
         document.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
+            if (!isDragging && !isResizing) return;
             
             const canvasRect = this.editorCanvas.getBoundingClientRect();
             const scaleX = this.editorCanvas.width / canvasRect.width;
             const scaleY = this.editorCanvas.height / canvasRect.height;
             
-            const deltaX = (e.clientX - startX) * scaleX;
-            const deltaY = (e.clientY - startY) * scaleY;
+            const deltaClientX = e.clientX - startClientX;
+            const deltaClientY = e.clientY - startClientY;
+            const deltaX = deltaClientX * scaleX;
+            const deltaY = deltaClientY * scaleY;
             
-            let newX = this.cropBox.x + deltaX;
-            let newY = this.cropBox.y + deltaY;
+            if (isDragging) {
+                let newX = startBoxX + deltaX;
+                let newY = startBoxY + deltaY;
+                
+                newX = Math.max(0, Math.min(newX, this.editorCanvas.width - this.cropBox.width));
+                newY = Math.max(0, Math.min(newY, this.editorCanvas.height - this.cropBox.height));
+                
+                this.cropBox.x = newX;
+                this.cropBox.y = newY;
+            }
             
-            newX = Math.max(0, Math.min(newX, this.editorCanvas.width - this.cropBox.width));
-            newY = Math.max(0, Math.min(newY, this.editorCanvas.height - this.cropBox.height));
-            
-            this.cropBox.x = newX;
-            this.cropBox.y = newY;
-            
-            startX = e.clientX;
-            startY = e.clientY;
+            if (isResizing) {
+                const ratio = this.cropRatio.value;
+                const isFreeCrop = ratio === 'free';
+                
+                let newX = startBoxX;
+                let newY = startBoxY;
+                let newWidth = startBoxWidth;
+                let newHeight = startBoxHeight;
+                
+                if (resizeCorner === 'corner-br') {
+                    newWidth = startBoxWidth + deltaX;
+                    newHeight = isFreeCrop ? (startBoxHeight + deltaY) : (newWidth * startBoxHeight / startBoxWidth);
+                } else if (resizeCorner === 'corner-tr') {
+                    newWidth = startBoxWidth + deltaX;
+                    newHeight = isFreeCrop ? (startBoxHeight - deltaY) : (newWidth * startBoxHeight / startBoxWidth);
+                    if (!isFreeCrop) {
+                        newY = startBoxY + startBoxHeight - newHeight;
+                    } else {
+                        newY = startBoxY + deltaY;
+                        newHeight = startBoxHeight - deltaY;
+                    }
+                } else if (resizeCorner === 'corner-bl') {
+                    newWidth = startBoxWidth - deltaX;
+                    newHeight = isFreeCrop ? (startBoxHeight + deltaY) : (newWidth * startBoxHeight / startBoxWidth);
+                    newX = startBoxX + startBoxWidth - newWidth;
+                } else if (resizeCorner === 'corner-tl') {
+                    newWidth = startBoxWidth - deltaX;
+                    newHeight = isFreeCrop ? (startBoxHeight - deltaY) : (newWidth * startBoxHeight / startBoxWidth);
+                    newX = startBoxX + startBoxWidth - newWidth;
+                    if (!isFreeCrop) {
+                        newY = startBoxY + startBoxHeight - newHeight;
+                    } else {
+                        newY = startBoxY + deltaY;
+                        newHeight = startBoxHeight - deltaY;
+                    }
+                }
+                
+                newWidth = Math.max(50, newWidth);
+                newHeight = Math.max(50, newHeight);
+                newX = Math.max(0, newX);
+                newY = Math.max(0, newY);
+                
+                if (newX + newWidth > this.editorCanvas.width) {
+                    newWidth = this.editorCanvas.width - newX;
+                }
+                if (newY + newHeight > this.editorCanvas.height) {
+                    newHeight = this.editorCanvas.height - newY;
+                }
+                
+                this.cropBox.x = newX;
+                this.cropBox.y = newY;
+                this.cropBox.width = newWidth;
+                this.cropBox.height = newHeight;
+            }
             
             this.updateCropBox();
         });
         
         document.addEventListener('mouseup', () => {
             isDragging = false;
+            isResizing = false;
+            resizeCorner = null;
         });
     }
 
