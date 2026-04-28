@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片风格转换平台</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>图片风格转换平台</h1>
+            <p>上传图片，选择风格，一键转换为艺术作品</p>
+        </header>
+
+        <section id="upload-section" class="section">
+            <div class="upload-area" id="upload-area">
+                <div class="upload-content">
+                    <div class="upload-icon">📁</div>
+                    <p>拖拽图片到此处上传</p>
+                    <p class="upload-hint">或点击选择文件</p>
+                    <p class="upload-format">支持格式：JPG、PNG（最大1MB）</p>
+                </div>
+                <input type="file" id="file-input" accept=".jpg,.jpeg,.png" hidden>
+            </div>
+            <div id="image-info" class="image-info hidden">
+                <p>图片尺寸：<span id="image-size">-</span></p>
+                <p>图片格式：<span id="image-format">-</span></p>
+            </div>
+        </section>
+
+        <section id="editor-section" class="section hidden">
+            <div class="editor-container">
+                <div class="editor-controls">
+                    <h3>图片编辑</h3>
+                    <div class="control-group">
+                        <label>裁剪比例</label>
+                        <select id="crop-ratio">
+                            <option value="free">自由裁剪</option>
+                            <option value="1:1">1:1</option>
+                            <option value="4:3">4:3</option>
+                            <option value="16:9">16:9</option>
+                        </select>
+                        <button id="crop-btn" class="btn">应用裁剪</button>
+                    </div>
+                    <div class="control-group">
+                        <label>旋转</label>
+                        <div class="rotate-buttons">
+                            <button id="rotate-left" class="btn btn-small">↺ 逆时针</button>
+                            <button id="rotate-right" class="btn btn-small">顺时针 ↻</button>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label>亮度: <span id="brightness-value">100</span>%</label>
+                        <input type="range" id="brightness" min="0" max="200" value="100">
+                    </div>
+                    <div class="control-group">
+                        <label>对比度: <span id="contrast-value">100</span>%</label>
+                        <input type="range" id="contrast" min="0" max="200" value="100">
+                    </div>
+                    <button id="reset-edits" class="btn btn-secondary">重置编辑</button>
+                </div>
+                <div class="editor-canvas-container">
+                    <canvas id="editor-canvas"></canvas>
+                    <div id="crop-overlay" class="crop-overlay hidden">
+                        <div class="crop-box" id="crop-box"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="style-section" class="section hidden">
+            <h3>选择风格模型</h3>
+            <div class="style-options">
+                <div class="style-option" data-style="impressionism">
+                    <div class="style-preview" data-style="impressionism"></div>
+                    <p>印象派</p>
+                </div>
+                <div class="style-option" data-style="abstract">
+                    <div class="style-preview" data-style="abstract"></div>
+                    <p>抽象派</p>
+                </div>
+                <div class="style-option" data-style="oil-painting">
+                    <div class="style-preview" data-style="oil-painting"></div>
+                    <p>古典油画</p>
+                </div>
+                <div class="style-option" data-style="watercolor">
+                    <div class="style-preview" data-style="watercolor"></div>
+                    <p>水彩</p>
+                </div>
+                <div class="style-option" data-style="anime">
+                    <div class="style-preview" data-style="anime"></div>
+                    <p>动漫</p>
+                </div>
+            </div>
+            <button id="convert-btn" class="btn btn-primary">开始转换</button>
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>正在转换中...</p>
+            </div>
+        </section>
+
+        <section id="compare-section" class="section hidden">
+            <h3>转换效果对比</h3>
+            <div class="compare-controls">
+                <button id="compare-slider" class="btn btn-primary">滑块对比</button>
+                <button id="compare-side" class="btn btn-secondary">左右对比</button>
+            </div>
+            <div id="compare-slider-container" class="compare-container">
+                <div class="slider-wrapper">
+                    <canvas id="compare-original"></canvas>
+                    <div class="slider-overlay">
+                        <canvas id="compare-styled"></canvas>
+                    </div>
+                    <div class="slider-handle" id="slider-handle"></div>
+                </div>
+            </div>
+            <div id="compare-side-container" class="compare-container hidden">
+                <div class="side-by-side">
+                    <div class="compare-item">
+                        <h4>原图</h4>
+                        <canvas id="side-original"></canvas>
+                    </div>
+                    <div class="compare-item">
+                        <h4>风格转换后</h4>
+                        <canvas id="side-styled"></canvas>
+                    </div>
+                </div>
+            </div>
+            <button id="download-btn" class="btn btn-primary download-btn">📥 高清下载</button>
+        </section>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
