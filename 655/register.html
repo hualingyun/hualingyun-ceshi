@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户注册</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            width: 400px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .error {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        .error.show {
+            display: block;
+        }
+        .link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .link a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .link a:hover {
+            text-decoration: underline;
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 5px;
+            color: white;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+        .toast.success {
+            background: #27ae60;
+        }
+        .toast.error {
+            background: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>用户注册</h1>
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" placeholder="3-20字符，字母开头，必须包含字母、数字、下划线">
+                <div class="error" id="usernameError">用户名格式错误</div>
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" placeholder="6-20字符，字母开头，大小写+数字">
+                <div class="error" id="passwordError">密码格式错误</div>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">确认密码</label>
+                <input type="password" id="confirmPassword" name="confirm_password" placeholder="请再次输入密码">
+                <div class="error" id="confirmPasswordError">两次密码不一致</div>
+            </div>
+            <div class="form-group">
+                <label for="phone">手机号</label>
+                <input type="text" id="phone" name="phone" placeholder="请输入手机号">
+                <div class="error" id="phoneError">手机号格式错误</div>
+            </div>
+            <button type="submit" class="btn">注册</button>
+        </form>
+        <div class="link">
+            已有账号？<a href="login.html">立即登录</a>
+        </div>
+    </div>
+    <div id="toast" class="toast"></div>
+
+    <script>
+        function showToast(message, type = 'error') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type + ' show';
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function validateUsername(username) {
+            if (!username) return '用户名不能为空';
+            if (username.length < 3 || username.length > 20) return '用户名长度必须为3-20个字符';
+            if (!/^[a-zA-Z][a-zA-Z0-9_]*$/.test(username)) return '用户名必须以字母开头，只能包含字母、数字和下划线';
+            if (!/[a-zA-Z]/.test(username) || !/[0-9]/.test(username) || !/_/.test(username)) return '用户名必须包含字母、数字和下划线三者组合';
+            return null;
+        }
+
+        function validatePassword(password) {
+            if (!password) return '密码不能为空';
+            if (password.length < 6 || password.length > 20) return '密码长度必须为6-20个字符';
+            if (!/^[a-zA-Z]/.test(password)) return '密码必须以字母开头';
+            if (!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) return '密码必须包含大小写字母和数字';
+            return null;
+        }
+
+        function validatePhone(phone) {
+            if (!phone) return '手机号不能为空';
+            if (!/^1[3-9]\d{9}$/.test(phone)) return '请输入有效的手机号';
+            return null;
+        }
+
+        document.getElementById('username').addEventListener('blur', function() {
+            const error = validateUsername(this.value);
+            const errorEl = document.getElementById('usernameError');
+            if (error) {
+                errorEl.textContent = error;
+                errorEl.classList.add('show');
+            } else {
+                errorEl.classList.remove('show');
+            }
+        });
+
+        document.getElementById('password').addEventListener('blur', function() {
+            const error = validatePassword(this.value);
+            const errorEl = document.getElementById('passwordError');
+            if (error) {
+                errorEl.textContent = error;
+                errorEl.classList.add('show');
+            } else {
+                errorEl.classList.remove('show');
+            }
+        });
+
+        document.getElementById('confirmPassword').addEventListener('blur', function() {
+            const password = document.getElementById('password').value;
+            const errorEl = document.getElementById('confirmPasswordError');
+            if (this.value !== password) {
+                errorEl.classList.add('show');
+            } else {
+                errorEl.classList.remove('show');
+            }
+        });
+
+        document.getElementById('phone').addEventListener('blur', function() {
+            const error = validatePhone(this.value);
+            const errorEl = document.getElementById('phoneError');
+            if (error) {
+                errorEl.textContent = error;
+                errorEl.classList.add('show');
+            } else {
+                errorEl.classList.remove('show');
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('register.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    setTimeout(() => {
+                        window.location.href = result.data.redirect;
+                    }, 1000);
+                } else {
+                    showToast(result.message, 'error');
+                }
+            })
+            .catch(error => {
+                showToast('网络错误，请重试', 'error');
+            });
+        });
+    </script>
+</body>
+</html>
