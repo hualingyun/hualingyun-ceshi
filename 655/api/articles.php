@@ -106,6 +106,8 @@ function add_article() {
     $articles[] = $new_article;
     save_articles($articles);
 
+    add_operation_log('添加文章：' . $title);
+
     json_response(true, '添加成功');
 }
 
@@ -150,6 +152,8 @@ function edit_article() {
 
     save_articles($articles);
 
+    add_operation_log('编辑文章ID：' . $id . '，标题：' . $title);
+
     json_response(true, '修改成功');
 }
 
@@ -174,6 +178,8 @@ function delete_article() {
     }
 
     save_articles($new_articles);
+
+    add_operation_log('删除文章ID：' . $id);
 
     json_response(true, '删除成功');
 }

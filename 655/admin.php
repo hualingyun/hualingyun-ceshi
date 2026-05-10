@@ -393,6 +393,10 @@ function has_button_permission_js($module, $action, $button_permissions) {
                     <span>分类添加</span>
                 </div>
             </div>
+            <div class="menu-item" data-page="operation_logs">
+                <span class="icon">📋</span>
+                <span>操作日志</span>
+            </div>
         </div>
 
         <div class="main">
@@ -515,6 +519,64 @@ function has_button_permission_js($module, $action, $button_permissions) {
                         <div id="buttonPermissionsContainer" style="margin-bottom: 30px;"></div>
                         
                         <button class="btn btn-primary" id="savePermissionsBtn" onclick="savePermissions()">保存配置</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="operationLogsPage" class="page">
+                <div class="page-header">
+                    <h2>操作日志</h2>
+                    <button class="btn btn-success" id="exportLogsBtn" onclick="exportOperationLogs()">导出Excel</button>
+                </div>
+                <div class="table-container" style="padding: 20px; margin-bottom: 20px;">
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>操作人</label>
+                            <input type="text" id="searchOperator" placeholder="请输入操作人" style="width: 200px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>开始时间</label>
+                            <input type="date" id="searchStartTime" style="width: 200px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>结束时间</label>
+                            <input type="date" id="searchEndTime" style="width: 200px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>操作内容</label>
+                            <input type="text" id="searchContent" placeholder="请输入操作内容" style="width: 200px;">
+                        </div>
+                        <button class="btn btn-primary" onclick="searchOperationLogs()">搜索</button>
+                        <button class="btn btn-default" onclick="resetSearchOperationLogs()">重置</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="operationLogsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>操作人</th>
+                                <th>操作时间</th>
+                                <th>操作内容</th>
+                                <th>操作IP</th>
+                            </tr>
+                        </thead>
+                        <tbody id="operationLogsTableBody">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination-container" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 15px; background: white; border-radius: 4px;">
+                    <div id="paginationInfo" style="color: #606266; font-size: 14px;"></div>
+                    <div id="paginationControls" style="display: flex; gap: 10px; align-items: center;">
+                        <button class="btn btn-default" id="firstPageBtn" onclick="goToPage(1)">首页</button>
+                        <button class="btn btn-default" id="prevPageBtn" onclick="goToPage(currentPage - 1)">上一页</button>
+                        <span id="pageNumbers" style="display: flex; gap: 5px;"></span>
+                        <button class="btn btn-default" id="nextPageBtn" onclick="goToPage(currentPage + 1)">下一页</button>
+                        <button class="btn btn-default" id="lastPageBtn" onclick="goToPage(totalPages)">末页</button>
+                        <span style="color: #606266; font-size: 14px;">跳转到</span>
+                        <input type="number" id="jumpToPageInput" min="1" style="width: 60px; padding: 5px 10px; border: 1px solid #dcdfe6; border-radius: 4px; font-size: 14px;">
+                        <span style="color: #606266; font-size: 14px;">页</span>
+                        <button class="btn btn-primary" onclick="jumpToPage()">跳转</button>
                     </div>
                 </div>
             </div>
@@ -789,6 +851,13 @@ function has_button_permission_js($module, $action, $button_permissions) {
                     }
                     document.getElementById('permissionsPage').classList.add('active');
                     loadPermissionRoles();
+                } else if (page === 'operation_logs') {
+                    if (!hasMenuPermission('operation_logs')) {
+                        showToast('您没有权限访问操作日志', 'error');
+                        return;
+                    }
+                    document.getElementById('operationLogsPage').classList.add('active');
+                    loadOperationLogs();
                 }
             });
         });
@@ -1536,7 +1605,8 @@ function has_button_permission_js($module, $action, $button_permissions) {
                 'articles': '文章管理',
                 'categories': '文章分类管理',
                 'roles': '角色管理',
-                'permissions': '权限配置'
+                'permissions': '权限配置',
+                'operation_logs': '操作日志'
             };
 
             let html = '<div style="display: flex; flex-wrap: wrap; gap: 20px;">';
@@ -1561,12 +1631,14 @@ function has_button_permission_js($module, $action, $button_permissions) {
                 'articles': '文章管理',
                 'categories': '文章分类管理',
                 'roles': '角色管理',
-                'permissions': '权限配置'
+                'permissions': '权限配置',
+                'operation_logs': '操作日志'
             };
             const actionNameMap = {
                 'add': '新增',
                 'edit': '编辑',
-                'delete': '删除'
+                'delete': '删除',
+                'export': '导出'
             };
 
             let html = '';
@@ -1703,6 +1775,172 @@ function has_button_permission_js($module, $action, $button_permissions) {
                 }
             }
             loadUserRoleOptions();
+        }
+
+        let currentPage = 1;
+        let totalPages = 1;
+        const pageSize = 10;
+
+        function loadOperationLogs(page = 1) {
+            currentPage = page;
+            let url = 'api/operation_logs.php';
+            
+            const operator = document.getElementById('searchOperator').value;
+            const startTime = document.getElementById('searchStartTime').value;
+            const endTime = document.getElementById('searchEndTime').value;
+            const content = document.getElementById('searchContent').value;
+            
+            const params = [];
+            params.push('page=' + page);
+            params.push('page_size=' + pageSize);
+            if (operator) params.push('operator=' + encodeURIComponent(operator));
+            if (startTime) params.push('start_time=' + encodeURIComponent(startTime));
+            if (endTime) params.push('end_time=' + encodeURIComponent(endTime));
+            if (content) params.push('content=' + encodeURIComponent(content));
+            
+            url += '?' + params.join('&');
+
+            fetch(url)
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        totalPages = result.data.pagination.total_pages;
+                        renderOperationLogsTable(result.data.list);
+                        renderPagination(result.data.pagination);
+                    } else {
+                        showToast(result.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    showToast('网络错误，请重试', 'error');
+                });
+        }
+
+        function renderOperationLogsTable(logs) {
+            const tbody = document.getElementById('operationLogsTableBody');
+            if (logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty">暂无数据</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = logs.map(log => `
+                <tr>
+                    <td>${log.id}</td>
+                    <td>${log.operator_name}</td>
+                    <td>${log.operation_time}</td>
+                    <td>${log.operation_content}</td>
+                    <td>${log.ip}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderPagination(pagination) {
+            const info = document.getElementById('paginationInfo');
+            const pageNumbers = document.getElementById('pageNumbers');
+            
+            if (pagination.total === 0) {
+                info.textContent = '共 0 条记录';
+                pageNumbers.innerHTML = '';
+                return;
+            }
+
+            info.textContent = `共 ${pagination.total} 条记录，第 ${pagination.page}/${pagination.total_pages} 页`;
+
+            let startPage = Math.max(1, pagination.page - 2);
+            let endPage = Math.min(pagination.total_pages, pagination.page + 2);
+            
+            if (pagination.page <= 2) {
+                endPage = Math.min(pagination.total_pages, 5);
+            }
+            
+            if (pagination.page >= pagination.total_pages - 1) {
+                startPage = Math.max(1, pagination.total_pages - 4);
+            }
+
+            let html = '';
+            for (let i = startPage; i <= endPage; i++) {
+                const isActive = i === pagination.page;
+                html += `<button class="btn ${isActive ? 'btn-primary' : 'btn-default'}" onclick="goToPage(${i})" style="min-width: 35px;">${i}</button>`;
+            }
+            pageNumbers.innerHTML = html;
+
+            const firstPageBtn = document.getElementById('firstPageBtn');
+            const prevPageBtn = document.getElementById('prevPageBtn');
+            const nextPageBtn = document.getElementById('nextPageBtn');
+            const lastPageBtn = document.getElementById('lastPageBtn');
+
+            firstPageBtn.disabled = pagination.page === 1;
+            prevPageBtn.disabled = pagination.page === 1;
+            nextPageBtn.disabled = pagination.page === pagination.total_pages;
+            lastPageBtn.disabled = pagination.page === pagination.total_pages;
+
+            if (firstPageBtn.disabled) firstPageBtn.classList.add('disabled');
+            else firstPageBtn.classList.remove('disabled');
+            if (prevPageBtn.disabled) prevPageBtn.classList.add('disabled');
+            else prevPageBtn.classList.remove('disabled');
+            if (nextPageBtn.disabled) nextPageBtn.classList.add('disabled');
+            else nextPageBtn.classList.remove('disabled');
+            if (lastPageBtn.disabled) lastPageBtn.classList.add('disabled');
+            else lastPageBtn.classList.remove('disabled');
+        }
+
+        function goToPage(page) {
+            if (page < 1 || page > totalPages) {
+                return;
+            }
+            loadOperationLogs(page);
+        }
+
+        function jumpToPage() {
+            const input = document.getElementById('jumpToPageInput');
+            const page = parseInt(input.value);
+            if (isNaN(page) || page < 1) {
+                showToast('请输入有效的页码', 'error');
+                return;
+            }
+            if (page > totalPages) {
+                showToast(`页码不能超过 ${totalPages}`, 'error');
+                return;
+            }
+            loadOperationLogs(page);
+        }
+
+        function searchOperationLogs() {
+            loadOperationLogs(1);
+        }
+
+        function resetSearchOperationLogs() {
+            document.getElementById('searchOperator').value = '';
+            document.getElementById('searchStartTime').value = '';
+            document.getElementById('searchEndTime').value = '';
+            document.getElementById('searchContent').value = '';
+            loadOperationLogs(1);
+        }
+
+        function exportOperationLogs() {
+            if (!hasButtonPermission('operation_logs', 'export')) {
+                showToast('您没有权限导出操作日志', 'error');
+                return;
+            }
+
+            const operator = document.getElementById('searchOperator').value;
+            const startTime = document.getElementById('searchStartTime').value;
+            const endTime = document.getElementById('searchEndTime').value;
+            const content = document.getElementById('searchContent').value;
+            
+            let url = 'api/operation_logs.php?action=export';
+            
+            const params = [];
+            if (operator) params.push('operator=' + encodeURIComponent(operator));
+            if (startTime) params.push('start_time=' + encodeURIComponent(startTime));
+            if (endTime) params.push('end_time=' + encodeURIComponent(endTime));
+            if (content) params.push('content=' + encodeURIComponent(content));
+            
+            if (params.length > 0) {
+                url += '&' + params.join('&');
+            }
+
+            window.location.href = url;
         }
     </script>
 </body>

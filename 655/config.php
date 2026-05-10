@@ -41,19 +41,20 @@ if (!file_exists(ROLES_FILE)) {
 if (!file_exists(PERMISSIONS_FILE)) {
     $default_permissions = [
         [
-            'id' => 1,
-            'role_id' => 1,
-            'menu_permissions' => ['welcome', 'users', 'articles', 'categories', 'roles', 'permissions'],
-            'button_permissions' => [
-                'users' => ['add', 'edit', 'delete'],
-                'articles' => ['add', 'edit', 'delete'],
-                'categories' => ['add', 'edit', 'delete'],
-                'roles' => ['add', 'edit', 'delete'],
-                'permissions' => ['edit']
-            ],
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
-        ]
+                'id' => 1,
+                'role_id' => 1,
+                'menu_permissions' => ['welcome', 'users', 'articles', 'categories', 'roles', 'permissions', 'operation_logs'],
+                'button_permissions' => [
+                    'users' => ['add', 'edit', 'delete'],
+                    'articles' => ['add', 'edit', 'delete'],
+                    'categories' => ['add', 'edit', 'delete'],
+                    'roles' => ['add', 'edit', 'delete'],
+                    'permissions' => ['edit'],
+                    'operation_logs' => ['export']
+                ],
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ]
     ];
     file_put_contents(PERMISSIONS_FILE, json_encode($default_permissions, JSON_PRETTY_PRINT));
 }
@@ -324,6 +325,12 @@ if (!function_exists('get_system_menus')) {
                 'name' => '权限配置',
                 'icon' => '🔒',
                 'buttons' => ['edit']
+            ],
+            [
+                'id' => 'operation_logs',
+                'name' => '操作日志',
+                'icon' => '📋',
+                'buttons' => ['export']
             ]
         ];
     }
@@ -335,5 +342,68 @@ if (!function_exists('get_data_scopes')) {
             ['value' => 'all', 'name' => '全部数据'],
             ['value' => 'own', 'name' => '仅本人数据']
         ];
+    }
+}
+
+define('OPERATION_LOGS_FILE', DATA_PATH . 'operation_logs.json');
+
+if (!file_exists(OPERATION_LOGS_FILE)) {
+    file_put_contents(OPERATION_LOGS_FILE, json_encode([]));
+}
+
+if (!function_exists('get_client_ip')) {
+    function get_client_ip() {
+        $ip = '127.0.0.1';
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            $ip = $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+            $ip = trim($ips[0]);
+        } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
+            $ip = $_SERVER['REMOTE_ADDR'];
+        }
+        return filter_var($ip, FILTER_VALIDATE_IP) ?: '127.0.0.1';
+    }
+}
+
+if (!function_exists('get_operation_logs')) {
+    function get_operation_logs() {
+        if (!file_exists(OPERATION_LOGS_FILE)) {
+            return [];
+        }
+        $content = file_get_contents(OPERATION_LOGS_FILE);
+        return json_decode($content, true) ?: [];
+    }
+}
+
+if (!function_exists('save_operation_logs')) {
+    function save_operation_logs($logs) {
+        file_put_contents(OPERATION_LOGS_FILE, json_encode($logs, JSON_PRETTY_PRINT));
+    }
+}
+
+if (!function_exists('add_operation_log')) {
+    function add_operation_log($content, $operator_id = null, $operator_name = null) {
+        $logs = get_operation_logs();
+        $current_user = app_get_current_user();
+        
+        if ($operator_id === null && $current_user) {
+            $operator_id = $current_user['id'];
+        }
+        if ($operator_name === null && $current_user) {
+            $operator_name = $current_user['username'];
+        }
+        
+        $log = [
+            'id' => empty($logs) ? 1 : max(array_column($logs, 'id')) + 1,
+            'operator_id' => $operator_id,
+            'operator_name' => $operator_name ?: '未登录用户',
+            'operation_time' => date('Y-m-d H:i:s'),
+            'operation_content' => $content,
+            'ip' => get_client_ip()
+        ];
+        
+        $logs[] = $log;
+        save_operation_logs($logs);
     }
 }

@@ -70,6 +70,8 @@ function add_category() {
     $categories[] = $new_category;
     save_categories($categories);
 
+    add_operation_log('添加分类：' . $name);
+
     json_response(true, '添加成功');
 }
 
@@ -107,6 +109,8 @@ function edit_category() {
 
     save_categories($categories);
 
+    add_operation_log('编辑分类ID：' . $id . '，名称：' . $name);
+
     json_response(true, '修改成功');
 }
 
@@ -138,6 +142,8 @@ function delete_category() {
     }
 
     save_categories($new_categories);
+
+    add_operation_log('删除分类ID：' . $id);
 
     json_response(true, '删除成功');
 }

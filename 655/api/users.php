@@ -143,6 +143,8 @@ function add_user() {
     $users[] = $new_user;
     save_users($users);
 
+    add_operation_log('添加用户：' . $username);
+
     json_response(true, '添加成功');
 }
 
@@ -218,6 +220,8 @@ function edit_user() {
 
     save_users($users);
 
+    add_operation_log('编辑用户ID：' . $id . '，用户名：' . $username);
+
     json_response(true, '修改成功');
 }
 
@@ -242,6 +246,8 @@ function delete_user() {
     }
 
     save_users($new_users);
+
+    add_operation_log('删除用户ID：' . $id);
 
     json_response(true, '删除成功');
 }

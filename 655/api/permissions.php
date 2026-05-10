@@ -169,5 +169,7 @@ function update_permissions() {
     
     save_permissions($permissions);
     
+    add_operation_log('更新角色权限，角色ID：' . $role_id . '，角色名称：' . $role['name']);
+
     json_response(true, '权限配置更新成功');
 }

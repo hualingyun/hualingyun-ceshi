@@ -136,6 +136,8 @@ function add_role() {
     $permissions[] = $new_permission;
     save_permissions($permissions);
     
+    add_operation_log('添加角色：' . $name);
+
     json_response(true, '添加成功');
 }
 
@@ -188,6 +190,8 @@ function edit_role() {
     
     save_roles($roles);
     
+    add_operation_log('编辑角色ID：' . $id . '，名称：' . $name);
+
     json_response(true, '修改成功');
 }
 
@@ -236,5 +240,7 @@ function delete_role() {
     }
     save_permissions($new_permissions);
     
+    add_operation_log('删除角色ID：' . $id);
+
     json_response(true, '删除成功');
 }

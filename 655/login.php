@@ -37,4 +37,6 @@ if (!password_verify($password, $found_user['password'])) {
 unset($found_user['password']);
 $_SESSION['user'] = $found_user;
 
+add_operation_log('用户登录系统', $found_user['id'], $found_user['username']);
+
 json_response(true, '登录成功', ['redirect' => 'admin.php']);
