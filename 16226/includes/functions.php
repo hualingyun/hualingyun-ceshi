@@ -290,3 +290,261 @@ function addComment($userId, $username, $contentId, $text) {
     
     return ['success' => true, 'message' => '评论成功', 'comment' => $newComment];
 }
+
+function hasCompletedAllCourses($userId) {
+    $contents = getAllContents();
+    if (empty($contents)) {
+        return false;
+    }
+    $progress = getUserProgress($userId);
+    $completedCount = 0;
+    foreach ($contents as $content) {
+        if (in_array($content['id'], $progress)) {
+            $completedCount++;
+        }
+    }
+    return $completedCount === count($contents);
+}
+
+function getExamQuestions() {
+    $examData = readJson(EXAMS_FILE);
+    return $examData['questions'] ?? [];
+}
+
+function getExamQuestionsForStudent() {
+    $questions = getExamQuestions();
+    $result = [];
+    foreach ($questions as $q) {
+        $studentQuestion = [
+            'id' => $q['id'],
+            'type' => $q['type'],
+            'question' => $q['question'],
+            'options' => $q['options'] ?? [],
+            'points' => $q['points'] ?? 10
+        ];
+        $result[] = $studentQuestion;
+    }
+    return $result;
+}
+
+function getExamQuestionById($questionId) {
+    $questions = getExamQuestions();
+    foreach ($questions as $q) {
+        if ($q['id'] == $questionId) {
+            return $q;
+        }
+    }
+    return null;
+}
+
+function addExamQuestion($type, $question, $options, $correctAnswer, $explanation, $points = 10) {
+    $examData = readJson(EXAMS_FILE);
+    $questions = $examData['questions'] ?? [];
+    
+    $newQuestion = [
+        'id' => getNextId($questions),
+        'type' => $type,
+        'question' => $question,
+        'options' => $options,
+        'correct_answer' => $correctAnswer,
+        'explanation' => $explanation,
+        'points' => intval($points),
+        'created_at' => date('Y-m-d H:i:s')
+    ];
+    
+    $questions[] = $newQuestion;
+    $examData['questions'] = $questions;
+    $examData['updated_at'] = date('Y-m-d H:i:s');
+    writeJson(EXAMS_FILE, $examData);
+    
+    return ['success' => true, 'message' => '题目添加成功', 'id' => $newQuestion['id']];
+}
+
+function updateExamQuestion($questionId, $type, $question, $options, $correctAnswer, $explanation, $points = 10) {
+    $examData = readJson(EXAMS_FILE);
+    $questions = $examData['questions'] ?? [];
+    
+    foreach ($questions as &$q) {
+        if ($q['id'] == $questionId) {
+            $q['type'] = $type;
+            $q['question'] = $question;
+            $q['options'] = $options;
+            $q['correct_answer'] = $correctAnswer;
+            $q['explanation'] = $explanation;
+            $q['points'] = intval($points);
+            $q['updated_at'] = date('Y-m-d H:i:s');
+            
+            $examData['questions'] = $questions;
+            $examData['updated_at'] = date('Y-m-d H:i:s');
+            writeJson(EXAMS_FILE, $examData);
+            return ['success' => true, 'message' => '题目更新成功'];
+        }
+    }
+    return ['success' => false, 'message' => '题目不存在'];
+}
+
+function deleteExamQuestion($questionId) {
+    $examData = readJson(EXAMS_FILE);
+    $questions = $examData['questions'] ?? [];
+    
+    foreach ($questions as $index => $q) {
+        if ($q['id'] == $questionId) {
+            array_splice($questions, $index, 1);
+            $examData['questions'] = $questions;
+            $examData['updated_at'] = date('Y-m-d H:i:s');
+            writeJson(EXAMS_FILE, $examData);
+            return ['success' => true, 'message' => '题目删除成功'];
+        }
+    }
+    return ['success' => false, 'message' => '题目不存在'];
+}
+
+function compareAnswers($type, $userAnswer, $correctAnswer) {
+    if ($type === 'multiple') {
+        if (!is_array($userAnswer)) {
+            $userAnswer = [$userAnswer];
+        }
+        if (!is_array($correctAnswer)) {
+            $correctAnswer = [$correctAnswer];
+        }
+        sort($userAnswer);
+        sort($correctAnswer);
+        return $userAnswer === $correctAnswer;
+    }
+    return $userAnswer === $correctAnswer;
+}
+
+function submitExam($userId, $username, $userAnswers) {
+    $questions = getExamQuestions();
+    if (empty($questions)) {
+        return ['success' => false, 'message' => '暂无考试题目'];
+    }
+    
+    $results = [];
+    $totalScore = 0;
+    $wrongQuestions = [];
+    
+    foreach ($questions as $q) {
+        $userAnswer = $userAnswers[$q['id']] ?? null;
+        $isCorrect = compareAnswers($q['type'], $userAnswer, $q['correct_answer']);
+        
+        $questionResult = [
+            'question_id' => $q['id'],
+            'type' => $q['type'],
+            'question' => $q['question'],
+            'options' => $q['options'],
+            'user_answer' => $userAnswer,
+            'correct_answer' => $q['correct_answer'],
+            'explanation' => $q['explanation'],
+            'is_correct' => $isCorrect,
+            'points' => $q['points']
+        ];
+        
+        if ($isCorrect) {
+            $totalScore += $q['points'];
+        } else {
+            $wrongQuestions[] = $questionResult;
+        }
+        $results[] = $questionResult;
+    }
+    
+    $totalPoints = 0;
+    foreach ($questions as $q) {
+        $totalPoints += $q['points'];
+    }
+    
+    $examResult = [
+        'id' => getNextId(getAllExamResults()),
+        'user_id' => $userId,
+        'username' => $username,
+        'total_score' => $totalScore,
+        'total_points' => $totalPoints,
+        'question_count' => count($questions),
+        'correct_count' => count($questions) - count($wrongQuestions),
+        'wrong_count' => count($wrongQuestions),
+        'results' => $results,
+        'wrong_questions' => $wrongQuestions,
+        'submitted_at' => date('Y-m-d H:i:s')
+    ];
+    
+    $allResults = getAllExamResults();
+    $allResults[] = $examResult;
+    writeJson(EXAM_RESULTS_FILE, $allResults);
+    
+    return [
+        'success' => true,
+        'result' => $examResult
+    ];
+}
+
+function getAllExamResults() {
+    return readJson(EXAM_RESULTS_FILE);
+}
+
+function getUserExamResults($userId) {
+    $allResults = getAllExamResults();
+    $userResults = [];
+    foreach ($allResults as $result) {
+        if ($result['user_id'] == $userId) {
+            $userResults[] = $result;
+        }
+    }
+    usort($userResults, function($a, $b) {
+        return strtotime($b['submitted_at']) - strtotime($a['submitted_at']);
+    });
+    return $userResults;
+}
+
+function getLatestExamResult($userId) {
+    $results = getUserExamResults($userId);
+    return $results[0] ?? null;
+}
+
+function getExamResultById($resultId) {
+    $allResults = getAllExamResults();
+    foreach ($allResults as $result) {
+        if ($result['id'] == $resultId) {
+            return $result;
+        }
+    }
+    return null;
+}
+
+function formatAnswer($type, $answer, $options) {
+    if ($answer === null) {
+        return '未作答';
+    }
+    
+    if ($type === 'judge') {
+        return $answer === 'true' ? '正确' : '错误';
+    }
+    
+    if ($type === 'multiple') {
+        if (!is_array($answer)) {
+            $answer = [$answer];
+        }
+        $formatted = [];
+        foreach ($answer as $ans) {
+            $optionIndex = array_search($ans, array_keys($options));
+            if ($optionIndex !== false) {
+                $formatted[] = chr(65 + $optionIndex) . '. ' . ($options[$ans] ?? $ans);
+            } else {
+                $formatted[] = $ans;
+            }
+        }
+        return implode('; ', $formatted);
+    }
+    
+    $optionIndex = array_search($answer, array_keys($options));
+    if ($optionIndex !== false) {
+        return chr(65 + $optionIndex) . '. ' . ($options[$answer] ?? $answer);
+    }
+    return $answer;
+}
+
+function getOptionLabel($key) {
+    $labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+    $keys = array_keys(['A' => 0, 'B' => 1, 'C' => 2, 'D' => 3, 'E' => 4, 'F' => 5, 'G' => 6, 'H' => 7]);
+    $index = array_search($key, $keys);
+    return $index !== false ? $labels[$index] : $key;
+}

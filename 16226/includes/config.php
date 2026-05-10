@@ -4,6 +4,8 @@ define('USERS_FILE', DATA_DIR . '/users.json');
 define('CONTENTS_FILE', DATA_DIR . '/contents.json');
 define('PROGRESS_FILE', DATA_DIR . '/progress.json');
 define('COMMENTS_FILE', DATA_DIR . '/comments.json');
+define('EXAMS_FILE', DATA_DIR . '/exams.json');
+define('EXAM_RESULTS_FILE', DATA_DIR . '/exam_results.json');
 
 function ensureDataFile($file, $defaultData) {
     if (!file_exists($file)) {
@@ -28,6 +30,11 @@ function initializeData() {
     ensureDataFile(CONTENTS_FILE, []);
     ensureDataFile(PROGRESS_FILE, []);
     ensureDataFile(COMMENTS_FILE, []);
+    ensureDataFile(EXAMS_FILE, [
+        'questions' => [],
+        'updated_at' => date('Y-m-d H:i:s')
+    ]);
+    ensureDataFile(EXAM_RESULTS_FILE, []);
 }
 
 initializeData();

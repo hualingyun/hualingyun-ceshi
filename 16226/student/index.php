@@ -77,6 +77,10 @@ $completedCount = count($progress);
 $totalCount = count($contents);
 $progressPercent = $totalCount > 0 ? round(($completedCount / $totalCount) * 100, 1) : 0;
 
+$hasCompletedAll = hasCompletedAllCourses($currentUser['id']);
+$questions = getExamQuestions();
+$latestResult = getLatestExamResult($currentUser['id']);
+
 if (isset($_GET['completed'])) {
     $message = '学习完成！已打卡标记。';
     $messageType = 'success';
@@ -108,6 +112,23 @@ if (isset($_GET['completed'])) {
                     <div style="width: <?php echo $progressPercent; ?>%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
                 </div>
             </div>
+            
+            <?php if ($totalCount > 0): ?>
+                <div style="padding: 15px 25px; border-bottom: 1px solid #eee; background: <?php echo $hasCompletedAll ? '#e8f5e9' : '#fef3c7'; ?>;">
+                    <?php if ($hasCompletedAll): ?>
+                        <div style="color: #2e7d32; font-weight: 600; margin-bottom: 8px;">🎉 恭喜！您已完成所有课程！</div>
+                        <a href="exam.php" class="btn btn-success btn-sm" style="width: 100%; padding: 12px;">📝 参加结业考试</a>
+                        <?php if ($latestResult): ?>
+                            <div style="margin-top: 10px; text-align: center; font-size: 13px; color: #666;">
+                                最近考试：<span style="font-weight: bold; color: <?php echo $latestResult['total_score'] >= $latestResult['total_points'] * 0.6 ? '#28a745' : '#dc3545'; ?>;"><?php echo $latestResult['total_score']; ?>分</span>
+                            </div>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <div style="color: #92400e; font-weight: 600; margin-bottom: 8px;">📖 还有 <?php echo $totalCount - $completedCount; ?> 节课程未完成</div>
+                        <div style="font-size: 12px; color: #78350f;">完成所有课程后可参加结业考试</div>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
             
             <div class="content-items">
                 <?php if (empty($contents)): ?>

@@ -22,6 +22,12 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         <a href="contents.php" class="menu-item <?php echo $currentPage === 'contents.php' ? 'active' : ''; ?>">
             📚 内容管理
         </a>
+        <a href="exams.php" class="menu-item <?php echo $currentPage === 'exams.php' ? 'active' : ''; ?>">
+            📝 考试管理
+        </a>
+        <a href="results.php" class="menu-item <?php echo $currentPage === 'results.php' ? 'active' : ''; ?>">
+            📊 成绩统计
+        </a>
     </nav>
     <div class="sidebar-footer">
         <a href="../logout.php" class="btn">🚪 退出登录</a>
