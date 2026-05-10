@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自定义布局ECharts仪表盘</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>自定义布局ECharts仪表盘</h1>
+            <div class="header-actions">
+                <button id="saveBtn" class="btn btn-save">保存布局</button>
+                <button id="editBtn" class="btn btn-edit" style="display: none;">编辑布局</button>
+                <button id="exportBtn" class="btn">导出为PNG</button>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <aside class="sidebar">
+                <h2>模块库</h2>
+                <div class="widgets-library">
+                    <div class="widget-item" draggable="true" data-widget-type="line">
+                        <span class="widget-icon">📈</span>
+                        <span>折线图</span>
+                    </div>
+                    <div class="widget-item" draggable="true" data-widget-type="bar">
+                        <span class="widget-icon">📊</span>
+                        <span>柱状图</span>
+                    </div>
+                    <div class="widget-item" draggable="true" data-widget-type="pie">
+                        <span class="widget-icon">🥧</span>
+                        <span>饼图</span>
+                    </div>
+                    <div class="widget-item" draggable="true" data-widget-type="radar">
+                        <span class="widget-icon">📡</span>
+                        <span>雷达图</span>
+                    </div>
+                    <div class="widget-item" draggable="true" data-widget-type="scatter">
+                        <span class="widget-icon">⚡</span>
+                        <span>散点图</span>
+                    </div>
+                </div>
+            </aside>
+            
+            <main class="dashboard" id="dashboard">
+                <div class="empty-state" id="emptyState">
+                    <p>拖拽左侧模块到此处</p>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <script src="js/script.js"></script>
+</body>
+</html>
