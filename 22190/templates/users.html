@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>用户管理</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>用户管理</h1>
+            <a href="/admin" class="btn btn-small btn-secondary">返回首页</a>
+        </div>
+        
+        <div class="section">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>用户名</th>
+                        <th>姓名</th>
+                        <th>角色</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .users}}
+                    <tr>
+                        <td>{{.Username}}</td>
+                        <td>{{.Name}}</td>
+                        <td>{{if eq .Role "admin"}}管理员{{else}}学生{{end}}</td>
+                        <td>
+                            {{if ne .Username "admin"}}
+                            <button class="btn btn-small btn-danger" onclick="deleteUser('{{.Username}}')">删除</button>
+                            {{end}}
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        function deleteUser(username) {
+            if (confirm('确定要删除该用户吗？')) {
+                fetch('/api/users?username=' + username, { method: 'DELETE' })
+                    .then(() => location.reload());
+            }
+        }
+    </script>
+</body>
+</html>

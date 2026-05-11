@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>交接班打卡</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>交接班打卡</h1>
+            <a href="/student" class="btn btn-small btn-secondary">返回</a>
+        </div>
+        
+        <div class="section" id="dutyInfo">
+            <div class="loading">加载中...</div>
+        </div>
+    </div>
+    
+    <script>
+        function loadCurrentDuty() {
+            fetch('/api/current-duty')
+                .then(res => res.json())
+                .then(data => {
+                    const div = document.getElementById('dutyInfo');
+                    if (data.on_duty) {
+                        const s = data.schedule;
+                        div.innerHTML = `
+                            <div class="card">
+                                <h3>当前值班信息</h3>
+                                <p><strong>日期：</strong>${s.date}</p>
+                                <p><strong>班次：</strong>${s.shift === 'morning' ? '早班' : '晚班'}</p>
+                                <p><strong>值班人：</strong>${s.name}</p>
+                                <hr>
+                                <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+                                    <div style="flex: 1;">
+                                        <h4 style="margin-bottom: 10px;">接班打卡</h4>
+                                        <p style="color: ${data.has_clock_in ? '#28a745' : '#666'}; margin-bottom: 10px;">
+                                            ${data.has_clock_in ? '✓ 已接班 - ' + data.clock_in_time : '未接班'}
+                                        </p>
+                                        <button class="btn" style="width: 100%;" 
+                                                onclick="doClockIn('${s.id}', '${s.date}', '${s.shift}')"
+                                                ${data.has_clock_in ? 'disabled' : ''}>
+                                            ${data.has_clock_in ? '已接班' : '确认接班'}
+                                        </button>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <h4 style="margin-bottom: 10px;">交班打卡</h4>
+                                        <p style="color: ${data.has_clock_out ? '#28a745' : '#666'}; margin-bottom: 10px;">
+                                            ${data.has_clock_out ? '✓ 已交班 - ' + data.clock_out_time : '未交班'}
+                                        </p>
+                                        <button class="btn btn-secondary" style="width: 100%;"
+                                                onclick="doClockOut('${s.id}', '${s.date}', '${s.shift}')"
+                                                ${data.has_clock_out ? 'disabled' : ''}>
+                                            ${data.has_clock_out ? '已交班' : '确认交班'}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>交接班备注：</label>
+                                    <textarea id="remark" rows="3" placeholder="请输入交接班备注..."></textarea>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        div.innerHTML = `
+                            <div class="card" style="text-align: center; padding: 40px;">
+                                <h3>当前不是您的值班时间</h3>
+                                <p>请在您的值班时间内进行交接班打卡</p>
+                            </div>
+                        `;
+                    }
+                });
+        }
+        
+        function doClockIn(scheduleId, date, shift) {
+            const remark = document.getElementById('remark') ? document.getElementById('remark').value : '';
+            fetch('/api/handover', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    schedule_id: scheduleId, 
+                    remark: remark, 
+                    date: date, 
+                    shift: shift,
+                    type: 'clock_in'
+                })
+            }).then(res => res.json()).then(data => {
+                if (data.status === 'ok') {
+                    alert('接班成功！');
+                    loadCurrentDuty();
+                } else {
+                    alert(data.msg || '操作失败');
+                }
+            });
+        }
+        
+        function doClockOut(scheduleId, date, shift) {
+            const remark = document.getElementById('remark') ? document.getElementById('remark').value : '';
+            fetch('/api/handover', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    schedule_id: scheduleId, 
+                    remark: remark, 
+                    date: date, 
+                    shift: shift,
+                    type: 'clock_out'
+                })
+            }).then(res => res.json()).then(data => {
+                if (data.status === 'ok') {
+                    alert('交班成功！');
+                    loadCurrentDuty();
+                } else {
+                    alert(data.msg || '操作失败');
+                }
+            });
+        }
+        
+        loadCurrentDuty();
+    </script>
+</body>
+</html>

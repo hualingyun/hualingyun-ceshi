@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>值班系统 - 注册</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-box">
+            <h2>用户注册</h2>
+            {{if .error}}
+            <div class="error">{{.error}}</div>
+            {{end}}
+            <form method="POST" action="/register">
+                <div class="form-group">
+                    <label>用户名：</label>
+                    <input type="text" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label>姓名：</label>
+                    <input type="text" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label>密码：</label>
+                    <input type="password" name="password" required>
+                    <small>密码需6位以上，包含字母、数字和下划线</small>
+                </div>
+                <div class="form-group">
+                    <label>角色：</label>
+                    <select name="role">
+                        <option value="student">学生</option>
+                        <option value="admin">管理员</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">注册</button>
+            </form>
+            <p>已有账号？<a href="/login">立即登录</a></p>
+        </div>
+    </div>
+</body>
+</html>

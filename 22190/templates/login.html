@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>值班系统 - 登录</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-box">
+            <h2>值班系统登录</h2>
+            {{if .error}}
+            <div class="error">{{.error}}</div>
+            {{end}}
+            <form method="POST" action="/login">
+                <div class="form-group">
+                    <label>用户名：</label>
+                    <input type="text" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label>密码：</label>
+                    <input type="password" name="password" required>
+                </div>
+                <button type="submit" class="btn">登录</button>
+            </form>
+            <p>还没有账号？<a href="/register">立即注册</a></p>
+        </div>
+    </div>
+</body>
+</html>

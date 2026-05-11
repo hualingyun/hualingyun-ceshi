@@ -1,0 +1,24 @@
+[
+  {
+    "id": "7d3780c8c45c08963d0890ed08b463e3",
+    "schedule_id": "bf5b16f2ee8e6e91293f41aa88ce6a06",
+    "username": "123",
+    "name": "123",
+    "date": "2026-05-11",
+    "shift": "evening",
+    "handover_time": "2026-05-11T23:46:38.7431049+08:00",
+    "remark": "",
+    "type": "clock_out"
+  },
+  {
+    "id": "27b036d44c6f99b2af1efecafaee2f6a",
+    "schedule_id": "bf5b16f2ee8e6e91293f41aa88ce6a06",
+    "username": "123",
+    "name": "123",
+    "date": "2026-05-11",
+    "shift": "evening",
+    "handover_time": "2026-05-11T23:46:41.9344029+08:00",
+    "remark": "",
+    "type": "clock_in"
+  }
+]

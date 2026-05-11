@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>管理员后台</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>欢迎，{{.user.Name}} (管理员)</h1>
+            <a href="/logout" class="btn btn-small">退出登录</a>
+        </div>
+        <div class="dashboard">
+            <div class="card" onclick="location.href='/users'">
+                <h3>用户管理</h3>
+                <p>管理系统用户，添加、删除用户</p>
+            </div>
+            <div class="card" onclick="location.href='/schedule'">
+                <h3>排班管理</h3>
+                <p>管理值班排班，批量生成和编辑</p>
+            </div>
+            <div class="card" onclick="location.href='/handover-log'">
+                <h3>交接班日志</h3>
+                <p>查看所有交接班记录</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

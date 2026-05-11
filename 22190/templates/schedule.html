@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>排班管理</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>排班管理</h1>
+            <a href="/admin" class="btn btn-small btn-secondary">返回首页</a>
+        </div>
+        
+        <div class="section">
+            <div class="toolbar">
+                <button class="btn" onclick="showBatchModal()">批量生成排班</button>
+                <button class="btn btn-primary" onclick="showAddModal()">添加排班</button>
+            </div>
+            
+            <div id="calendar"></div>
+            
+            <h3>排班列表</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>日期</th>
+                        <th>班次</th>
+                        <th>值班人</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .schedules}}
+                    <tr>
+                        <td>{{.Date}}</td>
+                        <td>{{if eq .Shift "morning"}}早班{{else}}晚班{{end}}</td>
+                        <td>{{.Name}}</td>
+                        <td>
+                            <button class="btn btn-small" onclick="editSchedule('{{.ID}}', '{{.Date}}', '{{.Shift}}', '{{.Username}}', '{{.Name}}')">编辑</button>
+                            <button class="btn btn-small btn-danger" onclick="deleteSchedule('{{.ID}}')">删除</button>
+                        </td>
+                    </tr>
+                    {{else}}
+                    <tr>
+                        <td colspan="4">暂无排班</td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <h3>添加排班</h3>
+            <div class="form-group">
+                <label>日期：</label>
+                <input type="date" id="addDate">
+            </div>
+            <div class="form-group">
+                <label>班次：</label>
+                <select id="addShift">
+                    <option value="morning">早班</option>
+                    <option value="evening">晚班</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>值班人：</label>
+                <select id="addUser">
+                    {{range .students}}
+                    <option value="{{.Username}}">{{.Name}}</option>
+                    {{end}}
+                </select>
+            </div>
+            <button class="btn" onclick="saveSchedule()">保存</button>
+            <button class="btn btn-secondary" onclick="closeModal('addModal')">取消</button>
+        </div>
+    </div>
+    
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h3>编辑排班</h3>
+            <input type="hidden" id="editId">
+            <div class="form-group">
+                <label>日期：</label>
+                <input type="date" id="editDate">
+            </div>
+            <div class="form-group">
+                <label>班次：</label>
+                <select id="editShift">
+                    <option value="morning">早班</option>
+                    <option value="evening">晚班</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>值班人：</label>
+                <select id="editUser">
+                    {{range .students}}
+                    <option value="{{.Username}}">{{.Name}}</option>
+                    {{end}}
+                </select>
+            </div>
+            <button class="btn" onclick="updateSchedule()">保存</button>
+            <button class="btn btn-secondary" onclick="closeModal('editModal')">取消</button>
+        </div>
+    </div>
+    
+    <div id="batchModal" class="modal">
+        <div class="modal-content">
+            <h3>批量生成排班</h3>
+            <div class="form-group">
+                <label>开始日期：</label>
+                <input type="date" id="startDate">
+            </div>
+            <div class="form-group">
+                <label>结束日期：</label>
+                <input type="date" id="endDate">
+            </div>
+            <div class="form-group">
+                <label>排班模式：</label>
+                <select id="batchMode">
+                    <option value="cycle">循环排班（自动分配）</option>
+                    <option value="fixed">固定人员</option>
+                </select>
+            </div>
+            <div class="form-group" id="batchUserGroup" style="display:none;">
+                <label>值班人员：</label>
+                <select id="batchUser">
+                    {{range .students}}
+                    <option value="{{.Username}}">{{.Name}}</option>
+                    {{end}}
+                </select>
+            </div>
+            <div class="form-group" id="batchShiftGroup" style="display:none;">
+                <label>班次：</label>
+                <select id="batchShift">
+                    <option value="both">早班+晚班</option>
+                    <option value="morning">仅早班</option>
+                    <option value="evening">仅晚班</option>
+                </select>
+            </div>
+            <button class="btn" onclick="generateBatch()">生成</button>
+            <button class="btn btn-secondary" onclick="closeModal('batchModal')">取消</button>
+        </div>
+    </div>
+    
+    <script>
+        const students = [
+            {{range .students}}
+            { username: '{{.Username}}', name: '{{.Name}}' },
+            {{end}}
+        ];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek'
+                },
+                events: [
+                    {{range .schedules}}
+                    {
+                        title: '{{if eq .Shift "morning"}}早班{{else}}晚班{{end}} - {{.Name}}',
+                        start: '{{.Date}}',
+                        backgroundColor: '{{if eq .Shift "morning"}}#4CAF50{{else}}#2196F3{{end}}'
+                    },
+                    {{end}}
+                ]
+            });
+            calendar.render();
+            
+            document.getElementById('batchMode').addEventListener('change', function() {
+                const mode = this.value;
+                const userGroup = document.getElementById('batchUserGroup');
+                const shiftGroup = document.getElementById('batchShiftGroup');
+                if (mode === 'fixed') {
+                    userGroup.style.display = 'block';
+                    shiftGroup.style.display = 'block';
+                } else {
+                    userGroup.style.display = 'none';
+                    shiftGroup.style.display = 'none';
+                }
+            });
+        });
+        
+        function showAddModal() {
+            document.getElementById('addModal').style.display = 'block';
+        }
+        
+        function showBatchModal() {
+            document.getElementById('batchModal').style.display = 'block';
+        }
+        
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+        
+        function saveSchedule() {
+            const date = document.getElementById('addDate').value;
+            const shift = document.getElementById('addShift').value;
+            const username = document.getElementById('addUser').value;
+            const name = students.find(s => s.username === username).name;
+            
+            fetch('/api/schedule', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'add', date, shift, username, name })
+            }).then(() => location.reload());
+        }
+        
+        function editSchedule(id, date, shift, username, name) {
+            document.getElementById('editId').value = id;
+            document.getElementById('editDate').value = date;
+            document.getElementById('editShift').value = shift;
+            document.getElementById('editUser').value = username;
+            document.getElementById('editModal').style.display = 'block';
+        }
+        
+        function updateSchedule() {
+            const id = document.getElementById('editId').value;
+            const date = document.getElementById('editDate').value;
+            const shift = document.getElementById('editShift').value;
+            const username = document.getElementById('editUser').value;
+            const name = students.find(s => s.username === username).name;
+            
+            fetch('/api/schedule', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'update', id, date, shift, username, name })
+            }).then(() => location.reload());
+        }
+        
+        function deleteSchedule(id) {
+            if (confirm('确定要删除该排班吗？')) {
+                fetch('/api/schedule', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete', id })
+                }).then(() => location.reload());
+            }
+        }
+        
+        function generateBatch() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const mode = document.getElementById('batchMode').value;
+            const batchUser = document.getElementById('batchUser').value;
+            const batchShift = document.getElementById('batchShift').value;
+            
+            if (!startDate || !endDate) {
+                alert('请选择开始和结束日期');
+                return;
+            }
+            
+            fetch('/api/schedule', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    action: 'batch', 
+                    start_date: startDate, 
+                    end_date: endDate,
+                    mode: mode,
+                    username: batchUser,
+                    shift: batchShift
+                })
+            }).then(() => location.reload());
+        }
+    </script>
+</body>
+</html>
