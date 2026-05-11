@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在线代码编辑器</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">Code Editor</div>
+            <div class="toolbar">
+                <div class="templates-group">
+                    <button class="btn btn-template" id="template-responsive">响应式布局</button>
+                    <button class="btn btn-template" id="template-todo">TodoList</button>
+                    <button class="btn btn-template" id="template-carousel">轮播图</button>
+                </div>
+                <div class="actions-group">
+                    <button class="btn btn-format" id="btn-format">格式化代码</button>
+                    <button class="btn btn-run" id="btn-run">运行</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="editors-panel">
+                <div class="editor-section">
+                    <div class="editor-header">
+                        <span class="lang-label html-label">HTML</span>
+                    </div>
+                    <div id="editor-html" class="editor"></div>
+                </div>
+
+                <div class="editor-section">
+                    <div class="editor-header">
+                        <span class="lang-label css-label">CSS</span>
+                    </div>
+                    <div id="editor-css" class="editor"></div>
+                </div>
+
+                <div class="editor-section">
+                    <div class="editor-header">
+                        <span class="lang-label js-label">JavaScript</span>
+                    </div>
+                    <div id="editor-js" class="editor"></div>
+                </div>
+            </div>
+
+            <div class="preview-panel">
+                <div class="preview-header">
+                    <span class="preview-label">预览</span>
+                    <button class="btn btn-clear-console" id="btn-clear-console">清空控制台</button>
+                </div>
+                <iframe id="preview-frame" class="preview-frame" sandbox="allow-scripts allow-modals"></iframe>
+                <div class="console-panel" id="console-panel">
+                    <div class="console-header">
+                        <span class="console-label">控制台</span>
+                    </div>
+                    <div class="console-output" id="console-output"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+    <script src="js/templates.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>
