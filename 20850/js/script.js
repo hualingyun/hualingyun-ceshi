@@ -235,15 +235,17 @@ function runCode() {
     
     const styleTag = `<style>\n${css}\n</style>`;
     const wrappedJs = `
-        try {
-            ${js}
-        } catch (e) {
-            window.parent.postMessage({
-                type: 'console',
-                level: 'error',
-                args: ['运行时错误:', e.name + ':', e.message]
-            }, '*');
-        }
+        window.addEventListener('DOMContentLoaded', function() {
+            try {
+                ${js}
+            } catch (e) {
+                window.parent.postMessage({
+                    type: 'console',
+                    level: 'error',
+                    args: ['运行时错误:', e.name + ':', e.message]
+                }, '*');
+            }
+        });
     `;
     const scriptTag = `<script>\n${consoleInterceptor}\n${wrappedJs}\n</script>`;
     
@@ -270,12 +272,20 @@ function runCode() {
 }
 
 function loadTemplate(templateName) {
+    if (typeof templates === 'undefined') {
+        addConsoleLog('error', '模板数据未加载，请检查 templates.js 文件');
+        return;
+    }
+    
     const template = templates[templateName];
     if (template) {
         htmlEditor.setValue(template.html);
         cssEditor.setValue(template.css);
         jsEditor.setValue(template.js);
         saveToLocalStorage();
+        setTimeout(runCode, 100);
+    } else {
+        addConsoleLog('error', '未找到模板:', templateName);
     }
 }
 
@@ -338,6 +348,8 @@ function initMonaco() {
         htmlEditor.onDidChangeModelContent(saveToLocalStorage);
         cssEditor.onDidChangeModelContent(saveToLocalStorage);
         jsEditor.onDidChangeModelContent(saveToLocalStorage);
+        
+        setTimeout(runCode, 500);
     });
 }
 

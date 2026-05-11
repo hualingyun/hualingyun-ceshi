@@ -128,6 +128,7 @@ console.log('尝试调整浏览器窗口大小来查看响应式效果');`
             <input type="text" id="taskInput" placeholder="添加新任务...">
             <button id="addBtn">添加</button>
         </div>
+        <div id="message" class="message"></div>
         <ul id="taskList"></ul>
     </div>
 </body>
@@ -216,23 +217,55 @@ li.completed {
     padding: 5px 10px;
     border-radius: 3px;
     cursor: pointer;
+}
+
+.message {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    text-align: center;
+    display: none;
+}
+
+.message.show {
+    display: block;
+}
+
+.message.error {
+    background: #fff3f3;
+    color: #e53e3e;
+    border: 1px solid #feb2b2;
+}
+
+.message.success {
+    background: #f0fff4;
+    color: #38a169;
+    border: 1px solid #9ae6b4;
 }`,
         js: `const taskInput = document.getElementById('taskInput');
 const addBtn = document.getElementById('addBtn');
 const taskList = document.getElementById('taskList');
+const messageEl = document.getElementById('message');
+
+function showMessage(msg, type) {
+    messageEl.textContent = msg;
+    messageEl.className = 'message show ' + type;
+    console[type === 'error' ? 'warn' : 'log'](msg);
+    setTimeout(function() {
+        messageEl.className = 'message';
+    }, 2000);
+}
 
 function addTask() {
     const text = taskInput.value.trim();
     if (text === '') {
-        alert('请输入任务内容');
+        showMessage('请输入任务内容', 'error');
         return;
     }
     
     const li = document.createElement('li');
-    li.innerHTML = `
-        <span>${text}</span>
-        <button class="delete-btn">删除</button>
-    `;
+    li.innerHTML = '<span>' + text + '</span>' +
+        '<button class="delete-btn">删除</button>';
     
     li.addEventListener('click', function(e) {
         if (e.target.classList.contains('delete-btn')) {
@@ -247,7 +280,7 @@ function addTask() {
     
     taskList.appendChild(li);
     taskInput.value = '';
-    console.log('添加新任务:', text);
+    showMessage('任务添加成功', 'success');
 }
 
 addBtn.addEventListener('click', addTask);
