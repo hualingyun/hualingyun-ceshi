@@ -9,13 +9,14 @@
     },
     {
         "username": "zhangsan",
-        "name": "张三",
+        "name": "张三1",
         "password": "$2y$12$FUQANj\/0xEo46HvDdNcdLuvSaLzVbjAlNMbz9bOCPMryDsQI.ZSau",
         "role": "staff",
         "phone": "13800138001",
         "email": "zhangsan@test.com",
         "id": 2,
-        "created_at": "2026-06-06 08:54:24"
+        "created_at": "2026-06-06 08:54:24",
+        "updated_at": "2026-06-06 11:15:06"
     },
     {
         "username": "lisi",
@@ -36,5 +37,25 @@
         "email": "wangwu@test.com",
         "id": 4,
         "created_at": "2026-06-06 08:54:25"
+    },
+    {
+        "username": "ceshi",
+        "name": "测试",
+        "password": "$2y$12$CrncojWLO0ZHSnEEAOQ17OXvcbVmgDE5CRRTxP7T.JNu7IkrJh5Xm",
+        "role": "staff",
+        "phone": "15801283821",
+        "email": "123@qq.com",
+        "id": 5,
+        "created_at": "2026-06-06 11:21:50"
+    },
+    {
+        "username": "ceshi2",
+        "name": "测试2",
+        "password": "$2y$12$8Df4a4plL\/Vr0osX9yw1eO1UBeHPa75PUZWG7ceRDOAu4RHiu4Yg2",
+        "role": "staff",
+        "phone": "123",
+        "email": "11@qq.com",
+        "id": 6,
+        "created_at": "2026-06-06 11:22:27"
     }
 ]

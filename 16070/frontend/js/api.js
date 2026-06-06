@@ -1,4 +1,4 @@
-const API_BASE = 'api';
+const API_BASE = '../api';
 
 const api = {
     async request(url, options = {}) {
@@ -12,13 +12,25 @@ const api = {
                 credentials: 'include',
                 ...options
             });
-            const data = await response.json();
+            
+            let data;
+            try {
+                data = await response.json();
+            } catch (jsonError) {
+                const text = await response.text().catch(() => '');
+                if (response.status === 401) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+                throw new Error('服务器响应异常，请稍后重试');
+            }
+            
             if (!response.ok) {
-                throw new Error(data.error || '请求失败');
+                throw new Error(data.error || data.message || '请求失败');
             }
             return data;
         } catch (error) {
-            showMessage(error.message, 'error');
+            error.message = error.message || '网络错误，请检查网络连接';
             throw error;
         }
     },
@@ -109,21 +121,32 @@ const api = {
 
 function showMessage(message, type = 'success') {
     const alert = document.createElement('div');
-    alert.className = `alert alert-${type}`;
+    alert.className = 'alert alert-' + type;
     alert.textContent = message;
-    alert.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 9999;
-        min-width: 250px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    `;
+    alert.style.position = 'fixed';
+    alert.style.top = '20px';
+    alert.style.right = '20px';
+    alert.style.zIndex = '9999';
+    alert.style.minWidth = '250px';
+    alert.style.padding = '12px 16px';
+    alert.style.borderRadius = '8px';
+    alert.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    if (type === 'success') {
+        alert.style.background = '#d4edda';
+        alert.style.color = '#155724';
+        alert.style.border = '1px solid #c3e6cb';
+    } else if (type === 'error') {
+        alert.style.background = '#f8d7da';
+        alert.style.color = '#721c24';
+        alert.style.border = '1px solid #f5c6cb';
+    }
     document.body.appendChild(alert);
-    setTimeout(() => {
+    setTimeout(function() {
         alert.style.opacity = '0';
         alert.style.transition = 'opacity 0.3s';
-        setTimeout(() => alert.remove(), 300);
+        setTimeout(function() {
+            if (alert.parentNode) alert.remove();
+        }, 300);
     }, 3000);
 }
 

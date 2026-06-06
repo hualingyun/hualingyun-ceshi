@@ -196,5 +196,914 @@
         "end_time": "18:00",
         "id": 22,
         "created_at": "2026-06-06 08:54:25"
+    },
+    {
+        "date": "2026-06-06",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 23,
+        "created_at": "2026-06-06 11:15:55"
+    },
+    {
+        "date": "2026-06-07",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 24,
+        "created_at": "2026-06-06 11:15:55"
+    },
+    {
+        "date": "2026-06-08",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 25,
+        "created_at": "2026-06-06 11:15:55"
+    },
+    {
+        "date": "2026-06-10",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 26,
+        "created_at": "2026-06-06 11:15:55"
+    },
+    {
+        "date": "2026-06-11",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 27,
+        "created_at": "2026-06-06 11:15:55"
+    },
+    {
+        "date": "2026-06-13",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 28,
+        "created_at": "2026-06-06 11:15:55"
+    },
+    {
+        "date": "2026-06-14",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 29,
+        "created_at": "2026-06-06 11:15:55"
+    },
+    {
+        "date": "2026-06-15",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 30,
+        "created_at": "2026-06-06 11:15:55"
+    },
+    {
+        "date": "2026-06-16",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 31,
+        "created_at": "2026-06-06 11:15:55"
+    },
+    {
+        "date": "2026-06-18",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 32,
+        "created_at": "2026-06-06 11:15:55"
+    },
+    {
+        "date": "2026-06-19",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 33,
+        "created_at": "2026-06-06 11:15:55"
+    },
+    {
+        "date": "2026-06-20",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 34,
+        "created_at": "2026-06-06 11:15:55"
+    },
+    {
+        "date": "2026-06-21",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 35,
+        "created_at": "2026-06-06 11:15:55"
+    },
+    {
+        "date": "2026-06-23",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 36,
+        "created_at": "2026-06-06 11:15:55"
+    },
+    {
+        "date": "2026-06-24",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 37,
+        "created_at": "2026-06-06 11:15:55"
+    },
+    {
+        "date": "2026-06-26",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 38,
+        "created_at": "2026-06-06 11:15:55"
+    },
+    {
+        "date": "2026-06-27",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 39,
+        "created_at": "2026-06-06 11:15:55"
+    },
+    {
+        "date": "2026-06-28",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 40,
+        "created_at": "2026-06-06 11:15:55"
+    },
+    {
+        "date": "2026-06-29",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 41,
+        "created_at": "2026-06-06 11:15:55"
+    },
+    {
+        "date": "2026-07-01",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 42,
+        "created_at": "2026-06-06 11:23:24"
+    },
+    {
+        "date": "2026-07-02",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 43,
+        "created_at": "2026-06-06 11:23:24"
+    },
+    {
+        "date": "2026-07-03",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 44,
+        "created_at": "2026-06-06 11:23:24"
+    },
+    {
+        "date": "2026-07-04",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 45,
+        "created_at": "2026-06-06 11:23:24"
+    },
+    {
+        "date": "2026-07-05",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 46,
+        "created_at": "2026-06-06 11:23:24"
+    },
+    {
+        "date": "2026-07-06",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 47,
+        "created_at": "2026-06-06 11:23:24"
+    },
+    {
+        "date": "2026-07-07",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 48,
+        "created_at": "2026-06-06 11:23:24"
+    },
+    {
+        "date": "2026-07-08",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 49,
+        "created_at": "2026-06-06 11:23:24"
+    },
+    {
+        "date": "2026-07-09",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 50,
+        "created_at": "2026-06-06 11:23:24"
+    },
+    {
+        "date": "2026-07-10",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 51,
+        "created_at": "2026-06-06 11:23:24"
+    },
+    {
+        "date": "2026-07-11",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 52,
+        "created_at": "2026-06-06 11:23:24"
+    },
+    {
+        "date": "2026-07-12",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 53,
+        "created_at": "2026-06-06 11:23:24"
+    },
+    {
+        "date": "2026-07-13",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 54,
+        "created_at": "2026-06-06 11:23:24"
+    },
+    {
+        "date": "2026-07-14",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 55,
+        "created_at": "2026-06-06 11:23:24"
+    },
+    {
+        "date": "2026-07-15",
+        "user_id": 2,
+        "shift_type": "day",
+        "start_time": "08:00",
+        "end_time": "18:00",
+        "id": 56,
+        "created_at": "2026-06-06 11:23:24"
+    },
+    {
+        "date": "2026-06-06",
+        "user_id": 3,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 57,
+        "created_at": "2026-06-06 11:23:45"
+    },
+    {
+        "date": "2026-06-07",
+        "user_id": 3,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 58,
+        "created_at": "2026-06-06 11:23:45"
+    },
+    {
+        "date": "2026-06-08",
+        "user_id": 3,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 59,
+        "created_at": "2026-06-06 11:23:45"
+    },
+    {
+        "date": "2026-06-09",
+        "user_id": 3,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 60,
+        "created_at": "2026-06-06 11:23:45"
+    },
+    {
+        "date": "2026-06-11",
+        "user_id": 3,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 61,
+        "created_at": "2026-06-06 11:23:45"
+    },
+    {
+        "date": "2026-06-12",
+        "user_id": 3,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 62,
+        "created_at": "2026-06-06 11:23:45"
+    },
+    {
+        "date": "2026-06-13",
+        "user_id": 3,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 63,
+        "created_at": "2026-06-06 11:23:45"
+    },
+    {
+        "date": "2026-06-14",
+        "user_id": 3,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 64,
+        "created_at": "2026-06-06 11:23:45"
+    },
+    {
+        "date": "2026-06-16",
+        "user_id": 3,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 65,
+        "created_at": "2026-06-06 11:23:45"
+    },
+    {
+        "date": "2026-06-17",
+        "user_id": 3,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 66,
+        "created_at": "2026-06-06 11:23:45"
+    },
+    {
+        "date": "2026-06-19",
+        "user_id": 3,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 67,
+        "created_at": "2026-06-06 11:23:45"
+    },
+    {
+        "date": "2026-06-20",
+        "user_id": 3,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 68,
+        "created_at": "2026-06-06 11:23:45"
+    },
+    {
+        "date": "2026-06-21",
+        "user_id": 3,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 69,
+        "created_at": "2026-06-06 11:23:45"
+    },
+    {
+        "date": "2026-06-22",
+        "user_id": 3,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 70,
+        "created_at": "2026-06-06 11:23:45"
+    },
+    {
+        "date": "2026-06-24",
+        "user_id": 3,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 71,
+        "created_at": "2026-06-06 11:23:45"
+    },
+    {
+        "date": "2026-06-25",
+        "user_id": 3,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 72,
+        "created_at": "2026-06-06 11:23:45"
+    },
+    {
+        "date": "2026-06-27",
+        "user_id": 3,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 73,
+        "created_at": "2026-06-06 11:23:45"
+    },
+    {
+        "date": "2026-06-28",
+        "user_id": 3,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 74,
+        "created_at": "2026-06-06 11:23:46"
+    },
+    {
+        "date": "2026-06-29",
+        "user_id": 3,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 75,
+        "created_at": "2026-06-06 11:23:46"
+    },
+    {
+        "date": "2026-06-06",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 76,
+        "created_at": "2026-06-06 11:25:03"
+    },
+    {
+        "date": "2026-06-07",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 77,
+        "created_at": "2026-06-06 11:25:03"
+    },
+    {
+        "date": "2026-06-08",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 78,
+        "created_at": "2026-06-06 11:25:03"
+    },
+    {
+        "date": "2026-06-09",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 79,
+        "created_at": "2026-06-06 11:25:03"
+    },
+    {
+        "date": "2026-06-10",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 80,
+        "created_at": "2026-06-06 11:25:03"
+    },
+    {
+        "date": "2026-06-11",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 81,
+        "created_at": "2026-06-06 11:25:03"
+    },
+    {
+        "date": "2026-06-12",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 82,
+        "created_at": "2026-06-06 11:25:03"
+    },
+    {
+        "date": "2026-06-13",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 83,
+        "created_at": "2026-06-06 11:25:03"
+    },
+    {
+        "date": "2026-06-14",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 84,
+        "created_at": "2026-06-06 11:25:03"
+    },
+    {
+        "date": "2026-06-15",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 85,
+        "created_at": "2026-06-06 11:25:03"
+    },
+    {
+        "date": "2026-06-16",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 86,
+        "created_at": "2026-06-06 11:25:03"
+    },
+    {
+        "date": "2026-06-17",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 87,
+        "created_at": "2026-06-06 11:25:03"
+    },
+    {
+        "date": "2026-06-18",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 88,
+        "created_at": "2026-06-06 11:25:03"
+    },
+    {
+        "date": "2026-06-19",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 89,
+        "created_at": "2026-06-06 11:25:03"
+    },
+    {
+        "date": "2026-06-20",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 90,
+        "created_at": "2026-06-06 11:25:03"
+    },
+    {
+        "date": "2026-06-21",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 91,
+        "created_at": "2026-06-06 11:25:03"
+    },
+    {
+        "date": "2026-06-22",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 92,
+        "created_at": "2026-06-06 11:25:04"
+    },
+    {
+        "date": "2026-06-23",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 93,
+        "created_at": "2026-06-06 11:25:04"
+    },
+    {
+        "date": "2026-06-24",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 94,
+        "created_at": "2026-06-06 11:25:04"
+    },
+    {
+        "date": "2026-06-25",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 95,
+        "created_at": "2026-06-06 11:25:04"
+    },
+    {
+        "date": "2026-06-26",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 96,
+        "created_at": "2026-06-06 11:25:04"
+    },
+    {
+        "date": "2026-06-27",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 97,
+        "created_at": "2026-06-06 11:25:04"
+    },
+    {
+        "date": "2026-06-28",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 98,
+        "created_at": "2026-06-06 11:25:04"
+    },
+    {
+        "date": "2026-06-29",
+        "user_id": 5,
+        "shift_type": "day",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 99,
+        "created_at": "2026-06-06 11:25:04"
+    },
+    {
+        "date": "2026-06-06",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 100,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-07",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 101,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-08",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 102,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-09",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 103,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-10",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 104,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-11",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 105,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-12",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 106,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-13",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 107,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-14",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 108,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-15",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 109,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-16",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 110,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-17",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 111,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-18",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 112,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-19",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 113,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-20",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 114,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-21",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 115,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-22",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 116,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-23",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 117,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-24",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 118,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-25",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 119,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-26",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 120,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-27",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 121,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-28",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 122,
+        "created_at": "2026-06-06 11:27:57"
+    },
+    {
+        "date": "2026-06-29",
+        "user_id": 6,
+        "shift_type": "night",
+        "start_time": "18:00",
+        "end_time": "08:00",
+        "id": 123,
+        "created_at": "2026-06-06 11:27:57"
     }
 ]

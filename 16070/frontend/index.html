@@ -27,7 +27,7 @@
                     <label>验证码</label>
                     <div class="captcha-group">
                         <input type="text" id="captcha" placeholder="请输入验证码" required maxlength="4">
-                        <img src="api/captcha.php" id="captchaImg" class="captcha-img" title="点击刷新" onclick="this.src='api/captcha.php?'+Math.random()">
+                        <img src="../api/captcha.php" id="captchaImg" class="captcha-img" title="点击刷新" onclick="this.src='../api/captcha.php?'+Math.random()">
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary" id="loginBtn">登录</button>
@@ -81,9 +81,11 @@
                     password: document.getElementById('password').value,
                     captcha: document.getElementById('captcha').value.trim()
                 });
-                showMessage('登录成功');
-                setTimeout(() => redirectToDashboard(data.user.role), 500);
+                showMessage('登录成功', 'success');
+                setTimeout(function() { redirectToDashboard(data.user.role); }, 500);
             } catch (error) {
+                const errorMsg = error.message || '登录失败，请重试';
+                showMessage(errorMsg, 'error');
                 document.getElementById('captchaImg').click();
                 document.getElementById('captcha').value = '';
             } finally {
