@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员后台 - 运维值班排班系统</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="header">
+        <h1>🔧 运维值班排班系统 - 管理后台</h1>
+        <div class="user-info">
+            <span id="userName"></span>
+            <span class="status-badge status-info">管理员</span>
+            <button class="btn btn-default btn-sm" onclick="logout()">退出登录</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="tabs">
+            <div class="tab active" data-tab="users">👥 值班人员管理</div>
+            <div class="tab" data-tab="schedule">📅 排班管理</div>
+            <div class="tab" data-tab="logs">📝 交接班日志</div>
+            <div class="tab" data-tab="attendance">⏰ 打卡记录</div>
+        </div>
+
+        <div class="tab-content active" id="tab-users">
+            <div class="card">
+                <div class="toolbar">
+                    <h3>值班人员列表</h3>
+                    <button class="btn btn-primary btn-sm" onclick="showAddUserModal()">+ 添加值班人员</button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>用户名</th>
+                            <th>姓名</th>
+                            <th>角色</th>
+                            <th>电话</th>
+                            <th>邮箱</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tab-content" id="tab-schedule">
+            <div class="card">
+                <div class="toolbar">
+                    <h3>排班日历</h3>
+                    <div class="flex gap-10">
+                        <button class="btn btn-success btn-sm" onclick="showBatchScheduleModal()">⚡ 批量排班</button>
+                        <button class="btn btn-warning btn-sm" onclick="showSwapModal()">🔄 调换班</button>
+                    </div>
+                </div>
+
+                <div class="calendar-controls">
+                    <div class="calendar-nav">
+                        <button class="btn btn-default btn-sm" onclick="prevMonth()">&#8592; 上月</button>
+                        <button class="btn btn-default btn-sm" onclick="goToday()">今天</button>
+                        <button class="btn btn-default btn-sm" onclick="nextMonth()">下月 &#8594;</button>
+                    </div>
+                    <h3 id="currentMonthTitle"></h3>
+                </div>
+
+                <div class="calendar-header">
+                    <div class="calendar-day-header">周一</div>
+                    <div class="calendar-day-header">周二</div>
+                    <div class="calendar-day-header">周三</div>
+                    <div class="calendar-day-header">周四</div>
+                    <div class="calendar-day-header">周五</div>
+                    <div class="calendar-day-header">周六</div>
+                    <div class="calendar-day-header">周日</div>
+                </div>
+                <div class="calendar" id="calendar"></div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="tab-logs">
+            <div class="card">
+                <h3>交接班日志列表</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>日期</th>
+                            <th>值班人</th>
+                            <th>值班内容</th>
+                            <th>交接人</th>
+                            <th>图片</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tab-content" id="tab-attendance">
+            <div class="card">
+                <h3>打卡记录</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>日期</th>
+                            <th>姓名</th>
+                            <th>上班打卡</th>
+                            <th>下班打卡</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="userModalTitle">添加值班人员</h3>
+                <span class="close" onclick="closeModal('userModal')">&times;</span>
+            </div>
+            <form id="userForm">
+                <input type="hidden" id="editUserId">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label>姓名</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group" id="passwordField">
+                    <label>密码</label>
+                    <input type="password" id="password" placeholder="至少8位，包含大小写字母和特殊符号">
+                    <div class="password-strength">
+                        <div class="password-strength-bar" id="strengthBar"></div>
+                    </div>
+                    <div class="strength-text" id="strengthText"></div>
+                </div>
+                <div class="form-group">
+                    <label>角色</label>
+                    <select id="role">
+                        <option value="staff">值班人员</option>
+                        <option value="admin">管理员</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>电话</label>
+                    <input type="text" id="phone">
+                </div>
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="email" id="email">
+                </div>
+                <div class="text-right">
+                    <button type="button" class="btn btn-default" onclick="closeModal('userModal')">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="batchScheduleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>批量排班</h3>
+                <span class="close" onclick="closeModal('batchScheduleModal')">&times;</span>
+            </div>
+            <form id="batchScheduleForm">
+                <div class="form-group">
+                    <label>开始日期</label>
+                    <input type="date" id="startDate" required>
+                </div>
+                <div class="form-group">
+                    <label>结束日期</label>
+                    <input type="date" id="endDate" required>
+                </div>
+                <div class="form-group">
+                    <label>选择值班人员（按顺序轮班）</label>
+                    <div class="users-selection" id="userSelection"></div>
+                </div>
+                <div class="form-group">
+                    <label>班次类型</label>
+                    <select id="shiftType">
+                        <option value="day">白班</option>
+                        <option value="night">夜班</option>
+                        <option value="all">全天</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>上班时间</label>
+                    <input type="time" id="startTime" value="08:00">
+                </div>
+                <div class="form-group">
+                    <label>下班时间</label>
+                    <input type="time" id="endTime" value="18:00">
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" id="excludeWeekends"> 排除周末</label>
+                </div>
+                <div class="text-right">
+                    <button type="button" class="btn btn-default" onclick="closeModal('batchScheduleModal')">取消</button>
+                    <button type="submit" class="btn btn-primary">生成排班</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="swapModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>调换班</h3>
+                <span class="close" onclick="closeModal('swapModal')">&times;</span>
+            </div>
+            <form id="swapForm">
+                <div class="form-group">
+                    <label>选择第一条排班记录</label>
+                    <select id="swapSchedule1" required>
+                        <option value="">请选择</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>选择第二条排班记录</label>
+                    <select id="swapSchedule2" required>
+                        <option value="">请选择</option>
+                    </select>
+                </div>
+                <div class="text-right">
+                    <button type="button" class="btn btn-default" onclick="closeModal('swapModal')">取消</button>
+                    <button type="submit" class="btn btn-primary">确认调换</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="editScheduleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>编辑排班</h3>
+                <span class="close" onclick="closeModal('editScheduleModal')">&times;</span>
+            </div>
+            <form id="editScheduleForm">
+                <input type="hidden" id="editScheduleId">
+                <div class="form-group">
+                    <label>日期</label>
+                    <input type="date" id="editDate" required>
+                </div>
+                <div class="form-group">
+                    <label>值班人员</label>
+                    <select id="editUserId" required></select>
+                </div>
+                <div class="form-group">
+                    <label>班次类型</label>
+                    <select id="editShiftType">
+                        <option value="day">白班</option>
+                        <option value="night">夜班</option>
+                        <option value="all">全天</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>上班时间</label>
+                    <input type="time" id="editStartTime">
+                </div>
+                <div class="form-group">
+                    <label>下班时间</label>
+                    <input type="time" id="editEndTime">
+                </div>
+                <div class="text-right">
+                    <button type="button" class="btn btn-default" onclick="closeModal('editScheduleModal')">取消</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteSchedule()">删除</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="viewLogModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>日志详情</h3>
+                <span class="close" onclick="closeModal('viewLogModal')">&times;</span>
+            </div>
+            <div id="logDetail"></div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

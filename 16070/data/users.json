@@ -1,0 +1,40 @@
+[
+    {
+        "id": 1,
+        "username": "Admin",
+        "password": "$2y$12$IMeO\/V7rVwe8qndWoCBQzeClwTs9pK4vLVudukrCDGnvdh7.1ooLy",
+        "name": "系统管理员",
+        "role": "admin",
+        "created_at": "2026-06-06 08:51:26"
+    },
+    {
+        "username": "zhangsan",
+        "name": "张三",
+        "password": "$2y$12$FUQANj\/0xEo46HvDdNcdLuvSaLzVbjAlNMbz9bOCPMryDsQI.ZSau",
+        "role": "staff",
+        "phone": "13800138001",
+        "email": "zhangsan@test.com",
+        "id": 2,
+        "created_at": "2026-06-06 08:54:24"
+    },
+    {
+        "username": "lisi",
+        "name": "李四",
+        "password": "$2y$12$tpLVvNrGZia9Gah6q.wLCeHIZlkXgB67l4\/YJ3GkKMdA74SAvx2Sa",
+        "role": "staff",
+        "phone": "13800138002",
+        "email": "lisi@test.com",
+        "id": 3,
+        "created_at": "2026-06-06 08:54:24"
+    },
+    {
+        "username": "wangwu",
+        "name": "王五",
+        "password": "$2y$12$5Tim56kiOE4AlqtixtxpVuEg7RbZ\/XewGSzXlj4udUZQRExgwAJ7.",
+        "role": "staff",
+        "phone": "13800138003",
+        "email": "wangwu@test.com",
+        "id": 4,
+        "created_at": "2026-06-06 08:54:25"
+    }
+]

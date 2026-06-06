@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>运维值班排班系统 - 登录</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="login-wrapper">
+        <div class="login-card">
+            <h2>运维值班排班系统</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" id="username" placeholder="请输入用户名" required>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="password" placeholder="请输入密码" required>
+                    <div class="password-strength">
+                        <div class="password-strength-bar" id="strengthBar"></div>
+                    </div>
+                    <div class="strength-text" id="strengthText"></div>
+                </div>
+                <div class="form-group">
+                    <label>验证码</label>
+                    <div class="captcha-group">
+                        <input type="text" id="captcha" placeholder="请输入验证码" required maxlength="4">
+                        <img src="api/captcha.php" id="captchaImg" class="captcha-img" title="点击刷新" onclick="this.src='api/captcha.php?'+Math.random()">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" id="loginBtn">登录</button>
+                <p style="margin-top: 20px; text-align: center; color: #999; font-size: 12px;">
+                    默认管理员账号：Admin / Admin.123
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const auth = await checkAuth();
+            if (auth.logged_in) {
+                redirectToDashboard(auth.user.role);
+            }
+        });
+
+        function redirectToDashboard(role) {
+            if (role === 'admin') {
+                window.location.href = 'admin.html';
+            } else {
+                window.location.href = 'staff.html';
+            }
+        }
+
+        const passwordInput = document.getElementById('password');
+        const strengthBar = document.getElementById('strengthBar');
+        const strengthText = document.getElementById('strengthText');
+
+        passwordInput.addEventListener('input', (e) => {
+            const strength = checkPasswordStrength(e.target.value);
+            const info = getStrengthInfo(strength);
+            strengthBar.style.width = info.width;
+            strengthBar.style.background = info.color;
+            strengthText.textContent = e.target.value ? `密码强度：${info.text}` : '';
+            strengthText.style.color = info.color;
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const loginBtn = document.getElementById('loginBtn');
+            const originalText = loginBtn.textContent;
+            loginBtn.innerHTML = '<span class="loading"></span> 登录中...';
+            loginBtn.disabled = true;
+
+            try {
+                const data = await api.auth.login({
+                    username: document.getElementById('username').value.trim(),
+                    password: document.getElementById('password').value,
+                    captcha: document.getElementById('captcha').value.trim()
+                });
+                showMessage('登录成功');
+                setTimeout(() => redirectToDashboard(data.user.role), 500);
+            } catch (error) {
+                document.getElementById('captchaImg').click();
+                document.getElementById('captcha').value = '';
+            } finally {
+                loginBtn.textContent = originalText;
+                loginBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

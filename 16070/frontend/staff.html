@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>值班工作台 - 运维值班排班系统</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="header">
+        <h1>👨‍💻 运维值班排班系统 - 值班工作台</h1>
+        <div class="user-info">
+            <span id="userName"></span>
+            <span class="status-badge status-success">值班人员</span>
+            <button class="btn btn-default btn-sm" onclick="logout()">退出登录</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="stat-cards">
+            <div class="stat-card">
+                <h4>今日状态</h4>
+                <div class="stat-value" id="todayStatus">-</div>
+            </div>
+            <div class="stat-card">
+                <h4>本月值班天数</h4>
+                <div class="stat-value" id="monthDays">0</div>
+            </div>
+            <div class="stat-card">
+                <h4>待处理交接</h4>
+                <div class="stat-value" id="pendingHandover">0</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>⏰ 今日打卡</h3>
+            <div class="check-in-out">
+                <div>
+                    <p><strong>上班打卡：</strong><span id="checkInTime" class="status-badge status-warning">未打卡</span></p>
+                    <p style="margin-top: 8px;"><strong>下班打卡：</strong><span id="checkOutTime" class="status-badge status-warning">未打卡</span></p>
+                </div>
+                <div class="flex gap-10">
+                    <button class="btn btn-success" id="checkInBtn" onclick="checkIn()">上班打卡</button>
+                    <button class="btn btn-danger" id="checkOutBtn" onclick="checkOut()">下班打卡</button>
+                </div>
+            </div>
+            <p style="margin-top: 15px; color: #999; font-size: 13px;" id="todayScheduleInfo"></p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="my-schedule">📅 我的排班</div>
+            <div class="tab" data-tab="my-logs">📝 交接班日志</div>
+            <div class="tab" data-tab="submit-log">✍️ 提交日志</div>
+        </div>
+
+        <div class="tab-content active" id="tab-my-schedule">
+            <div class="card">
+                <div class="calendar-controls">
+                    <div class="calendar-nav">
+                        <button class="btn btn-default btn-sm" onclick="prevMonth()">&#8592; 上月</button>
+                        <button class="btn btn-default btn-sm" onclick="goToday()">今天</button>
+                        <button class="btn btn-default btn-sm" onclick="nextMonth()">下月 &#8594;</button>
+                    </div>
+                    <h3 id="currentMonthTitle"></h3>
+                </div>
+
+                <div class="calendar-header">
+                    <div class="calendar-day-header">周一</div>
+                    <div class="calendar-day-header">周二</div>
+                    <div class="calendar-day-header">周三</div>
+                    <div class="calendar-day-header">周四</div>
+                    <div class="calendar-day-header">周五</div>
+                    <div class="calendar-day-header">周六</div>
+                    <div class="calendar-day-header">周日</div>
+                </div>
+                <div class="calendar" id="calendar"></div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="tab-my-logs">
+            <div class="card">
+                <h3>我的交接班日志</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>日期</th>
+                            <th>值班内容</th>
+                            <th>交接人</th>
+                            <th>图片</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tab-content" id="tab-submit-log">
+            <div class="card">
+                <h3>提交交接班日志</h3>
+                <form id="logForm">
+                    <div class="form-group">
+                        <label>值班内容 <span style="color: red;">*</span></label>
+                        <textarea id="logContent" rows="6" placeholder="请详细记录今日值班情况..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>交接内容</label>
+                        <textarea id="handoverContent" rows="4" placeholder="请记录需要交接给下一班的事项..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>交接人</label>
+                        <select id="relieverId">
+                            <option value="">请选择（可选）</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>上传图片</label>
+                        <input type="file" id="imageInput" accept="image/*" multiple>
+                        <div class="image-preview" id="imagePreview"></div>
+                    </div>
+                    <div class="text-right">
+                        <button type="reset" class="btn btn-default">重置</button>
+                        <button type="submit" class="btn btn-primary">提交日志</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="viewLogModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>日志详情</h3>
+                <span class="close" onclick="closeModal('viewLogModal')">&times;</span>
+            </div>
+            <div id="logDetail"></div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/staff.js"></script>
+</body>
+</html>
